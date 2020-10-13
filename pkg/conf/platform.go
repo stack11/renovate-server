@@ -93,7 +93,7 @@ type WebhookConfig struct {
 }
 
 type GitConfig struct {
-	User  string `json:"username" yaml:"username"`
+	User  string `json:"user" yaml:"user"`
 	Email string `json:"email" yaml:"email"`
 }
 
