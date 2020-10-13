@@ -22,7 +22,7 @@ func NewController(ctx context.Context, config *conf.Config) (*Controller, error
 	)
 	switch {
 	case config.Server.Executor.Kubernetes != nil:
-		exec, err = executor.NewKubernetesExecutor(config.Server.Executor.Kubernetes)
+		exec, err = executor.NewKubernetesExecutor(ctx, config.Server.Executor.Kubernetes)
 	default:
 		return nil, fmt.Errorf("no executor provided")
 	}
