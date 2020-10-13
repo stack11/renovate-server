@@ -60,3 +60,7 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "renovate-server.webhookPort" -}}
+{{- index (split ":" (default ":0" .Values.config.server.webhook.listen)) "_1" -}}
+{{- end }}

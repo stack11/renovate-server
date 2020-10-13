@@ -32,9 +32,13 @@ data:
             token: <my personal github api token>
         baseURL: https://api.github.com/
         uploadURL: https://uploads.github.com/
+      git:
+        email: USERID+USERNAME@users.noreply.github.com
+        user: My Bot
       projects: []
       webhook:
         path: /github-com
+        secret: <my secret for hmac>
     gitlab:
     - api:
         auth:
@@ -44,6 +48,7 @@ data:
       projects: []
       webhook:
         path: /gitlab-com
+        secret: <my secret for hmac>
     server:
       executor:
         kubernetes:
