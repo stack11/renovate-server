@@ -17,33 +17,36 @@ limitations under the License.
 package conf
 
 import (
+	"arhat.dev/pkg/confhelper"
 	"arhat.dev/pkg/log"
 	"github.com/spf13/pflag"
+
+	"arhat.dev/renovate-server/pkg/constant"
 )
 
-// nolint:lll
-type TemplateApplicationGoConfig struct {
-	TemplateApplicationGo TemplateApplicationGoAppConfig `json:"templateApplicationGo" yaml:"templateApplicationGo"`
+type Config struct {
+	Server ServerConfig `json:"server" yaml:"server"`
+
+	GitHub []GitHubConfig `json:"github" yaml:"github"`
+	GitLab []GitLabConfig `json:"gitlab" yaml:"gitlab"`
 }
 
-type TemplateApplicationGoAppConfig struct {
+type ServerConfig struct {
 	Log log.ConfigSet `json:"log" yaml:"log"`
 
-	Foo string `json:"foo" yaml:"foo"`
+	Webhook struct {
+		Listen string               `json:"listen" yaml:"listen"`
+		TLS    confhelper.TLSConfig `json:"tls" yaml:"tls"`
+	} `json:"webhook" yaml:"webhook"`
 }
 
-func FlagsForTemplateApplicationGo(prefix string, config *TemplateApplicationGoAppConfig) *pflag.FlagSet {
+func FlagsForServer(prefix string, config *ServerConfig) *pflag.FlagSet {
 	fs := pflag.NewFlagSet("app", pflag.ExitOnError)
 
-	fs.StringVar(&config.Foo, prefix+"foo", "bar", "set value of foo")
+	fs.StringVar(&config.Webhook.Listen, prefix+"webhook.listen",
+		constant.DefaultWebhookListenAddress, "set webhook listener address",
+	)
+	fs.AddFlagSet(confhelper.FlagsForTLSConfig(prefix+"webhook.tls", &config.Webhook.TLS))
 
 	return fs
-}
-
-func (c *TemplateApplicationGoConfig) GetLogConfig() log.ConfigSet {
-	return c.TemplateApplicationGo.Log
-}
-
-func (c *TemplateApplicationGoConfig) SetLogConfig(config log.ConfigSet) {
-	c.TemplateApplicationGo.Log = config
 }

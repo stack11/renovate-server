@@ -22,20 +22,20 @@ import (
 	"arhat.dev/pkg/log"
 	"github.com/spf13/cobra"
 
-	"arhat.dev/template-application-go/pkg/conf"
-	"arhat.dev/template-application-go/pkg/constant"
+	"arhat.dev/renovate-server/pkg/conf"
+	"arhat.dev/renovate-server/pkg/constant"
 )
 
-func NewTemplateApplicationGoCmd() *cobra.Command {
+func NewRenovateServerCmd() *cobra.Command {
 	var (
 		appCtx       context.Context
 		configFile   string
-		config       = new(conf.TemplateApplicationGoConfig)
+		config       = new(conf.Config)
 		cliLogConfig = new(log.Config)
 	)
 
-	templateApplicationGoCmd := &cobra.Command{
-		Use:           "template-application-go",
+	renovateServerCmd := &cobra.Command{
+		Use:           "renovate-server",
 		SilenceErrors: true,
 		SilenceUsage:  true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
@@ -56,17 +56,17 @@ func NewTemplateApplicationGoCmd() *cobra.Command {
 		},
 	}
 
-	flags := templateApplicationGoCmd.PersistentFlags()
+	flags := renovateServerCmd.PersistentFlags()
 
-	flags.StringVarP(&configFile, "config", "c", constant.DefaultTemplateApplicationGoConfigFile,
-		"path to the templateApplicationGo config file")
-	flags.AddFlagSet(conf.FlagsForTemplateApplicationGo("", &config.TemplateApplicationGo))
+	flags.StringVarP(&configFile, "config", "c",
+		constant.DefaultRenovateServerConfigFile, "path to the config file")
+	flags.AddFlagSet(conf.FlagsForServer("", &config.Server))
 
-	return templateApplicationGoCmd
+	return renovateServerCmd
 }
 
-func run(appCtx context.Context, config *conf.TemplateApplicationGoConfig) error {
-	logger := log.Log.WithName("TemplateApplicationGo")
+func run(appCtx context.Context, config *conf.Config) error {
+	logger := log.Log.WithName("server")
 
 	_ = logger
 	return nil

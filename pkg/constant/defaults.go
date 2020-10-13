@@ -17,5 +17,17 @@ limitations under the License.
 package constant
 
 const (
-	DefaultTemplateApplicationGoConfigFile = "/etc/template-application-go/config.yaml"
+	DefaultRenovateServerConfigFile = "/etc/renovate-server/config.yaml"
+	DefaultWebhookListenAddress     = ":8080"
+)
+
+// GitHub Defaults
+const (
+	DefaultGitHubAPIBaseURL   = "https://api.github.com/"
+	DefaultGitHubAPIUploadURL = "https://uploads.github.com/"
+)
+
+// GitLab Defaults
+const (
+	DefaultGitLabAPIBaseURL = "https://gitlab.com/"
 )

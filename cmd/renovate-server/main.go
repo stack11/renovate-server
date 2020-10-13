@@ -22,19 +22,19 @@ import (
 	"os"
 	"time"
 
-	"arhat.dev/template-application-go/pkg/cmd"
-	"arhat.dev/template-application-go/pkg/version"
+	"arhat.dev/renovate-server/pkg/cmd"
+	"arhat.dev/renovate-server/pkg/version"
 )
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	rootCmd := cmd.NewTemplateApplicationGoCmd()
+	rootCmd := cmd.NewRenovateServerCmd()
 	rootCmd.AddCommand(version.NewVersionCmd())
 
 	err := rootCmd.Execute()
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "failed to run template-application-go %v: %v\n", os.Args, err)
+		_, _ = fmt.Fprintf(os.Stderr, "failed to run renovate-server %v: %v\n", os.Args, err)
 		os.Exit(1)
 	}
 }

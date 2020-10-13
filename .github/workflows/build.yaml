@@ -40,18 +40,18 @@ jobs:
 
     - name: Build
       run: |
-        CGO_ENABLED=0 make -j$(nproc --all) template-application-go.linux.all
-        CGO_ENABLED=0 make -j$(nproc --all) template-application-go.freebsd.all TAGS=''
-        CGO_ENABLED=0 make -j$(nproc --all) template-application-go.netbsd.all TAGS=''
-        CGO_ENABLED=0 make -j$(nproc --all) template-application-go.openbsd.all TAGS=''
-        CGO_ENABLED=0 make -j$(nproc --all) template-application-go.plan9.all TAGS=''
-        CGO_ENABLED=0 make -j$(nproc --all) template-application-go.solaris.amd64 TAGS=''
-        CGO_ENABLED=0 make -j$(nproc --all) template-application-go.aix.ppc64 TAGS=''
-        CGO_ENABLED=0 make -j$(nproc --all) template-application-go.dragonfly.amd64 TAGS=''
+        make -j$(nproc --all) renovate-server.linux.all
+        make -j$(nproc --all) renovate-server.freebsd.all TAGS=''
+        make -j$(nproc --all) renovate-server.netbsd.all TAGS=''
+        make -j$(nproc --all) renovate-server.openbsd.all TAGS=''
+        make -j$(nproc --all) renovate-server.plan9.all TAGS=''
+        make -j$(nproc --all) renovate-server.solaris.amd64 TAGS=''
+        make -j$(nproc --all) renovate-server.aix.ppc64 TAGS=''
+        make -j$(nproc --all) renovate-server.dragonfly.amd64 TAGS=''
 
     - name: Package
       run: |
-        make package.template-application-go.linux.all
+        make package.renovate-server.linux.all
 
     - name: Hash
       run: |
@@ -59,9 +59,9 @@ jobs:
 
         cd build
         for os in ${os_list}; do
-          sha256sum template-application-go.${os}* > sha256.${os}.txt
-          sha512sum template-application-go.${os}* > sha512.${os}.txt
-          md5sum template-application-go.${os}* > md5.${os}.txt
+          sha256sum renovate-server.${os}* > sha256.${os}.txt
+          sha512sum renovate-server.${os}* > sha512.${os}.txt
+          md5sum renovate-server.${os}* > md5.${os}.txt
         done
         cd -
 
@@ -70,60 +70,6 @@ jobs:
       with:
         name: build-on-linux
         path: build
-
-  # build-on-linux-cgo:
-  #   if: contains(github.head_ref, 'deps/') == false
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: arhatdev/builder-go:debian
-  #   steps:
-  #   - name: Install docker-cli in Container
-  #     run: |
-  #       apt update
-  #       apt install -y apt-transport-https ca-certificates curl software-properties-common lsb-release
-  #       curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-  #       add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-
-  #       apt update
-  #       apt install -y docker-ce-cli
-  #       docker -v
-
-  #   - name: Run in Host
-  #     uses: arhat-dev/actions-hostrun@main
-  #     with:
-  #       run: |
-  #         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-  #         sudo apt update
-  #         sudo apt install -y qemu-user-static
-
-  #   - uses: actions/checkout@v2
-  #   - name: Install Extra Packages
-  #     run: |
-  #       apt update
-  #       apt install -y python3-distutils=3.7.3-1 python3-lib2to3=3.7.3-1 python3=3.7.3-1
-
-  #   - name: Build
-  #     run: |
-  #       # may need to install some packages during build process, do not run in parallel
-  #       CGO_ENABLED=1 make template-application-go.linux.all
-
-  #   - name: Package
-  #     run: |
-  #       make package.template-application-go.linux.all
-
-  #   - name: Hash
-  #     run: |
-  #       cd build
-  #       sha256sum template-application-go.linux* > sha256.linux.txt
-  #       sha512sum template-application-go.linux* > sha512.linux.txt
-  #       md5sum template-application-go.linux* > md5.linux.txt
-  #       cd -
-
-  #   - name: Upload Artifact
-  #     uses: actions/upload-artifact@v2
-  #     with:
-  #       name: build-on-linux-cgo
-  #       path: build
 
   build-on-darwin:
     if: contains(github.head_ref, 'deps/') == false
@@ -137,12 +83,12 @@ jobs:
 
     - name: Build
       run: |
-        CGO_ENABLED=1 make template-application-go.darwin.all
+        make renovate-server.darwin.all
 
     # # TODO: Support macos packaging
     # - name: Package
     #   run: |
-    #     make package.template-application-go.darwin.all
+    #     make package.renovate-server.darwin.all
 
     - name: Install md5sum
       run: |
@@ -151,9 +97,9 @@ jobs:
     - name: Hash
       run: |
         cd build
-        shasum -a 256 template-application-go.darwin* > sha256.darwin.txt
-        shasum -a 512 template-application-go.darwin* > sha512.darwin.txt
-        md5sum template-application-go.darwin* > md5.darwin.txt
+        shasum -a 256 renovate-server.darwin* > sha256.darwin.txt
+        shasum -a 512 renovate-server.darwin* > sha512.darwin.txt
+        md5sum renovate-server.darwin* > md5.darwin.txt
         cd -
 
     - name: Upload Artifact
@@ -174,19 +120,19 @@ jobs:
 
     - name: Build
       run: |
-        CGO_ENABLED=0 make -j$(nproc --all) template-application-go.windows.all
+        make -j$(nproc --all) renovate-server.windows.all
 
     # # TODO: Support windows packaging
     # - name: Package
     #   run: |
-    #     make package.template-application-go.windows.all
+    #     make package.renovate-server.windows.all
 
     - name: Hash
       run: |
         cd build
-        sha256sum template-application-go.windows* > sha256.windows.txt
-        sha512sum template-application-go.windows* > sha512.windows.txt
-        md5sum template-application-go.windows* > md5.windows.txt
+        sha256sum renovate-server.windows* > sha256.windows.txt
+        sha512sum renovate-server.windows* > sha512.windows.txt
+        md5sum renovate-server.windows* > md5.windows.txt
         cd -
 
     - name: Upload Artifact
@@ -264,8 +210,8 @@ jobs:
 
           ## Images
 
-          - `docker.io/arhatdev/template-application-go:${{ steps.extract_tag.outputs.tag }}`
-          - `ghcr.io/arhat-dev/template-application-go:${{ steps.extract_tag.outputs.tag }}`
+          - `docker.io/arhatdev/renovate-server:${{ steps.extract_tag.outputs.tag }}`
+          - `ghcr.io/arhat-dev/renovate-server:${{ steps.extract_tag.outputs.tag }}`
 
     #
     # checksums
@@ -315,607 +261,607 @@ jobs:
         asset_path: build/md5.txt
         asset_content_type: text/plain
 
-    - name: Upload template-application-go.darwin.amd64
+    - name: Upload renovate-server.darwin.amd64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.darwin.amd64
-        asset_path: build/template-application-go.darwin.amd64
+        asset_name: renovate-server.darwin.amd64
+        asset_path: build/renovate-server.darwin.amd64
         asset_content_type: application/octet-stream
 
     # TODO: support darwin/arm64 build
-    # - name: Upload template-application-go.darwin.arm64
+    # - name: Upload renovate-server.darwin.arm64
     #   uses: actions/upload-release-asset@v1
     #   env:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     #   with:
     #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #     asset_name: template-application-go.darwin.arm64
-    #     asset_path: build/template-application-go.darwin.arm64
+    #     asset_name: renovate-server.darwin.arm64
+    #     asset_path: build/renovate-server.darwin.arm64
     #     asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.windows.x86
+    - name: Upload renovate-server.windows.x86
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.windows.x86.exe
-        asset_path: build/template-application-go.windows.x86.exe
+        asset_name: renovate-server.windows.x86.exe
+        asset_path: build/renovate-server.windows.x86.exe
         asset_content_type: application/x-ms-dos-executable
 
-    - name: Upload template-application-go.windows.amd64
+    - name: Upload renovate-server.windows.amd64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.windows.amd64.exe
-        asset_path: build/template-application-go.windows.amd64.exe
+        asset_name: renovate-server.windows.amd64.exe
+        asset_path: build/renovate-server.windows.amd64.exe
         asset_content_type: application/x-ms-dos-executable
 
-    - name: Upload template-application-go.windows.armv5
+    - name: Upload renovate-server.windows.armv5
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.windows.armv5.exe
-        asset_path: build/template-application-go.windows.armv5.exe
+        asset_name: renovate-server.windows.armv5.exe
+        asset_path: build/renovate-server.windows.armv5.exe
         asset_content_type: application/x-ms-dos-executable
 
-    - name: Upload template-application-go.windows.armv6
+    - name: Upload renovate-server.windows.armv6
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.windows.armv6.exe
-        asset_path: build/template-application-go.windows.armv6.exe
+        asset_name: renovate-server.windows.armv6.exe
+        asset_path: build/renovate-server.windows.armv6.exe
         asset_content_type: application/x-ms-dos-executable
 
-    - name: Upload template-application-go.windows.armv7
+    - name: Upload renovate-server.windows.armv7
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.windows.armv7.exe
-        asset_path: build/template-application-go.windows.armv7.exe
+        asset_name: renovate-server.windows.armv7.exe
+        asset_path: build/renovate-server.windows.armv7.exe
         asset_content_type: application/x-ms-dos-executable
 
-    - name: Upload template-application-go.linux.x86
+    - name: Upload renovate-server.linux.x86
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.x86
-        asset_path: build/template-application-go.linux.x86
+        asset_name: renovate-server.linux.x86
+        asset_path: build/renovate-server.linux.x86
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.amd64
+    - name: Upload renovate-server.linux.amd64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.amd64
-        asset_path: build/template-application-go.linux.amd64
+        asset_name: renovate-server.linux.amd64
+        asset_path: build/renovate-server.linux.amd64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.armv5
+    - name: Upload renovate-server.linux.armv5
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.armv5
-        asset_path: build/template-application-go.linux.armv5
+        asset_name: renovate-server.linux.armv5
+        asset_path: build/renovate-server.linux.armv5
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.armv6
+    - name: Upload renovate-server.linux.armv6
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.armv6
-        asset_path: build/template-application-go.linux.armv6
+        asset_name: renovate-server.linux.armv6
+        asset_path: build/renovate-server.linux.armv6
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.armv7
+    - name: Upload renovate-server.linux.armv7
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.armv7
-        asset_path: build/template-application-go.linux.armv7
+        asset_name: renovate-server.linux.armv7
+        asset_path: build/renovate-server.linux.armv7
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.arm64
+    - name: Upload renovate-server.linux.arm64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.arm64
-        asset_path: build/template-application-go.linux.arm64
+        asset_name: renovate-server.linux.arm64
+        asset_path: build/renovate-server.linux.arm64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.ppc64
+    - name: Upload renovate-server.linux.ppc64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.ppc64
-        asset_path: build/template-application-go.linux.ppc64
+        asset_name: renovate-server.linux.ppc64
+        asset_path: build/renovate-server.linux.ppc64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.ppc64le
+    - name: Upload renovate-server.linux.ppc64le
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.ppc64le
-        asset_path: build/template-application-go.linux.ppc64le
+        asset_name: renovate-server.linux.ppc64le
+        asset_path: build/renovate-server.linux.ppc64le
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.s390x
+    - name: Upload renovate-server.linux.s390x
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.s390x
-        asset_path: build/template-application-go.linux.s390x
+        asset_name: renovate-server.linux.s390x
+        asset_path: build/renovate-server.linux.s390x
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.mips
+    - name: Upload renovate-server.linux.mips
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.mips
-        asset_path: build/template-application-go.linux.mips
+        asset_name: renovate-server.linux.mips
+        asset_path: build/renovate-server.linux.mips
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.mipshf
+    - name: Upload renovate-server.linux.mipshf
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.mipshf
-        asset_path: build/template-application-go.linux.mipshf
+        asset_name: renovate-server.linux.mipshf
+        asset_path: build/renovate-server.linux.mipshf
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.mipsle
+    - name: Upload renovate-server.linux.mipsle
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.mipsle
-        asset_path: build/template-application-go.linux.mipsle
+        asset_name: renovate-server.linux.mipsle
+        asset_path: build/renovate-server.linux.mipsle
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.mipslehf
+    - name: Upload renovate-server.linux.mipslehf
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.mipslehf
-        asset_path: build/template-application-go.linux.mipslehf
+        asset_name: renovate-server.linux.mipslehf
+        asset_path: build/renovate-server.linux.mipslehf
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.mips64
+    - name: Upload renovate-server.linux.mips64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.mips64
-        asset_path: build/template-application-go.linux.mips64
+        asset_name: renovate-server.linux.mips64
+        asset_path: build/renovate-server.linux.mips64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.mips64hf
+    - name: Upload renovate-server.linux.mips64hf
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.mips64hf
-        asset_path: build/template-application-go.linux.mips64hf
+        asset_name: renovate-server.linux.mips64hf
+        asset_path: build/renovate-server.linux.mips64hf
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.mips64le
+    - name: Upload renovate-server.linux.mips64le
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.mips64le
-        asset_path: build/template-application-go.linux.mips64le
+        asset_name: renovate-server.linux.mips64le
+        asset_path: build/renovate-server.linux.mips64le
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.linux.mips64lehf
+    - name: Upload renovate-server.linux.mips64lehf
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.linux.mips64lehf
-        asset_path: build/template-application-go.linux.mips64lehf
+        asset_name: renovate-server.linux.mips64lehf
+        asset_path: build/renovate-server.linux.mips64lehf
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.freebsd.x86
+    - name: Upload renovate-server.freebsd.x86
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.freebsd.x86
-        asset_path: build/template-application-go.freebsd.x86
+        asset_name: renovate-server.freebsd.x86
+        asset_path: build/renovate-server.freebsd.x86
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.freebsd.amd64
+    - name: Upload renovate-server.freebsd.amd64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.freebsd.amd64
-        asset_path: build/template-application-go.freebsd.amd64
+        asset_name: renovate-server.freebsd.amd64
+        asset_path: build/renovate-server.freebsd.amd64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.freebsd.armv5
+    - name: Upload renovate-server.freebsd.armv5
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.freebsd.armv5
-        asset_path: build/template-application-go.freebsd.armv5
+        asset_name: renovate-server.freebsd.armv5
+        asset_path: build/renovate-server.freebsd.armv5
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.freebsd.armv6
+    - name: Upload renovate-server.freebsd.armv6
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.freebsd.armv6
-        asset_path: build/template-application-go.freebsd.armv6
+        asset_name: renovate-server.freebsd.armv6
+        asset_path: build/renovate-server.freebsd.armv6
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.freebsd.armv7
+    - name: Upload renovate-server.freebsd.armv7
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.freebsd.armv7
-        asset_path: build/template-application-go.freebsd.armv7
+        asset_name: renovate-server.freebsd.armv7
+        asset_path: build/renovate-server.freebsd.armv7
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.freebsd.arm64
+    - name: Upload renovate-server.freebsd.arm64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.freebsd.arm64
-        asset_path: build/template-application-go.freebsd.arm64
+        asset_name: renovate-server.freebsd.arm64
+        asset_path: build/renovate-server.freebsd.arm64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.openbsd.x86
+    - name: Upload renovate-server.openbsd.x86
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.openbsd.x86
-        asset_path: build/template-application-go.openbsd.x86
+        asset_name: renovate-server.openbsd.x86
+        asset_path: build/renovate-server.openbsd.x86
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.openbsd.amd64
+    - name: Upload renovate-server.openbsd.amd64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.openbsd.amd64
-        asset_path: build/template-application-go.openbsd.amd64
+        asset_name: renovate-server.openbsd.amd64
+        asset_path: build/renovate-server.openbsd.amd64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.openbsd.armv5
+    - name: Upload renovate-server.openbsd.armv5
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.openbsd.armv5
-        asset_path: build/template-application-go.openbsd.armv5
+        asset_name: renovate-server.openbsd.armv5
+        asset_path: build/renovate-server.openbsd.armv5
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.openbsd.armv6
+    - name: Upload renovate-server.openbsd.armv6
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.openbsd.armv6
-        asset_path: build/template-application-go.openbsd.armv6
+        asset_name: renovate-server.openbsd.armv6
+        asset_path: build/renovate-server.openbsd.armv6
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.openbsd.armv7
+    - name: Upload renovate-server.openbsd.armv7
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.openbsd.armv7
-        asset_path: build/template-application-go.openbsd.armv7
+        asset_name: renovate-server.openbsd.armv7
+        asset_path: build/renovate-server.openbsd.armv7
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.openbsd.arm64
+    - name: Upload renovate-server.openbsd.arm64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.openbsd.arm64
-        asset_path: build/template-application-go.openbsd.arm64
+        asset_name: renovate-server.openbsd.arm64
+        asset_path: build/renovate-server.openbsd.arm64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.netbsd.x86
+    - name: Upload renovate-server.netbsd.x86
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.netbsd.x86
-        asset_path: build/template-application-go.netbsd.x86
+        asset_name: renovate-server.netbsd.x86
+        asset_path: build/renovate-server.netbsd.x86
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.netbsd.amd64
+    - name: Upload renovate-server.netbsd.amd64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.netbsd.amd64
-        asset_path: build/template-application-go.netbsd.amd64
+        asset_name: renovate-server.netbsd.amd64
+        asset_path: build/renovate-server.netbsd.amd64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.netbsd.armv5
+    - name: Upload renovate-server.netbsd.armv5
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.netbsd.armv5
-        asset_path: build/template-application-go.netbsd.armv5
+        asset_name: renovate-server.netbsd.armv5
+        asset_path: build/renovate-server.netbsd.armv5
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.netbsd.armv6
+    - name: Upload renovate-server.netbsd.armv6
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.netbsd.armv6
-        asset_path: build/template-application-go.netbsd.armv6
+        asset_name: renovate-server.netbsd.armv6
+        asset_path: build/renovate-server.netbsd.armv6
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.netbsd.armv7
+    - name: Upload renovate-server.netbsd.armv7
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.netbsd.armv7
-        asset_path: build/template-application-go.netbsd.armv7
+        asset_name: renovate-server.netbsd.armv7
+        asset_path: build/renovate-server.netbsd.armv7
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.netbsd.arm64
+    - name: Upload renovate-server.netbsd.arm64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.netbsd.arm64
-        asset_path: build/template-application-go.netbsd.arm64
+        asset_name: renovate-server.netbsd.arm64
+        asset_path: build/renovate-server.netbsd.arm64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.plan9.x86
+    - name: Upload renovate-server.plan9.x86
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.plan9.x86
-        asset_path: build/template-application-go.plan9.x86
+        asset_name: renovate-server.plan9.x86
+        asset_path: build/renovate-server.plan9.x86
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.plan9.amd64
+    - name: Upload renovate-server.plan9.amd64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.plan9.amd64
-        asset_path: build/template-application-go.plan9.amd64
+        asset_name: renovate-server.plan9.amd64
+        asset_path: build/renovate-server.plan9.amd64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.plan9.armv5
+    - name: Upload renovate-server.plan9.armv5
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.plan9.armv5
-        asset_path: build/template-application-go.plan9.armv5
+        asset_name: renovate-server.plan9.armv5
+        asset_path: build/renovate-server.plan9.armv5
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.plan9.armv6
+    - name: Upload renovate-server.plan9.armv6
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.plan9.armv6
-        asset_path: build/template-application-go.plan9.armv6
+        asset_name: renovate-server.plan9.armv6
+        asset_path: build/renovate-server.plan9.armv6
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.plan9.armv7
+    - name: Upload renovate-server.plan9.armv7
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.plan9.armv7
-        asset_path: build/template-application-go.plan9.armv7
+        asset_name: renovate-server.plan9.armv7
+        asset_path: build/renovate-server.plan9.armv7
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.dragonfly.amd64
+    - name: Upload renovate-server.dragonfly.amd64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.dragonfly.amd64
-        asset_path: build/template-application-go.dragonfly.amd64
+        asset_name: renovate-server.dragonfly.amd64
+        asset_path: build/renovate-server.dragonfly.amd64
         asset_content_type: application/octet-stream
 
-    - name: Upload template-application-go.solaris.amd64
+    - name: Upload renovate-server.solaris.amd64
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.solaris.amd64
-        asset_path: build/template-application-go.solaris.amd64
+        asset_name: renovate-server.solaris.amd64
+        asset_path: build/renovate-server.solaris.amd64
         asset_content_type: application/octet-stream
 
     #
     # packages
     #
 
-    - name: Upload template-application-go-amd64.deb
+    - name: Upload renovate-server-amd64.deb
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.amd64.deb
-        asset_path: build/template-application-go.amd64.deb
+        asset_name: renovate-server.amd64.deb
+        asset_path: build/renovate-server.amd64.deb
         asset_content_type: application/vnd.debian.binary-package
 
-    - name: Upload template-application-go-x86_64.rpm
+    - name: Upload renovate-server-x86_64.rpm
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.x86_64.rpm
-        asset_path: build/template-application-go.x86_64.rpm
+        asset_name: renovate-server.x86_64.rpm
+        asset_path: build/renovate-server.x86_64.rpm
         asset_content_type: application/x-rpm
 
-    - name: Upload template-application-go-armel.deb
+    - name: Upload renovate-server-armel.deb
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.armel.deb
-        asset_path: build/template-application-go.armel.deb
+        asset_name: renovate-server.armel.deb
+        asset_path: build/renovate-server.armel.deb
         asset_content_type: application/vnd.debian.binary-package
 
-    - name: Upload template-application-go-armhf.deb
+    - name: Upload renovate-server-armhf.deb
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.armhf.deb
-        asset_path: build/template-application-go.armhf.deb
+        asset_name: renovate-server.armhf.deb
+        asset_path: build/renovate-server.armhf.deb
         asset_content_type: application/vnd.debian.binary-package
 
-    - name: Upload template-application-go-armhfp.rpm
+    - name: Upload renovate-server-armhfp.rpm
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.armhfp.rpm
-        asset_path: build/template-application-go.armhfp.rpm
+        asset_name: renovate-server.armhfp.rpm
+        asset_path: build/renovate-server.armhfp.rpm
         asset_content_type: application/x-rpm
 
-    - name: Upload template-application-go-arm64.deb
+    - name: Upload renovate-server-arm64.deb
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.arm64.deb
-        asset_path: build/template-application-go.arm64.deb
+        asset_name: renovate-server.arm64.deb
+        asset_path: build/renovate-server.arm64.deb
         asset_content_type: application/vnd.debian.binary-package
 
-    - name: Upload template-application-go-aarch64.rpm
+    - name: Upload renovate-server-aarch64.rpm
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: template-application-go.aarch64.rpm
-        asset_path: build/template-application-go.aarch64.rpm
+        asset_name: renovate-server.aarch64.rpm
+        asset_path: build/renovate-server.aarch64.rpm
         asset_content_type: application/x-rpm
 
-    # - name: Upload template-application-go-arm64.msi
+    # - name: Upload renovate-server-arm64.msi
     #   uses: actions/upload-release-asset@v1
     #   env:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     #   with:
     #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #     asset_name: template-application-go.arm64.msi
-    #     asset_path: build/template-application-go.arm64.msi
+    #     asset_name: renovate-server.arm64.msi
+    #     asset_path: build/renovate-server.arm64.msi
     #     asset_content_type: application/x-msdownload
 
-    # - name: Upload template-application-go-amd64.msi
+    # - name: Upload renovate-server-amd64.msi
     #   uses: actions/upload-release-asset@v1
     #   env:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     #   with:
     #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #     asset_name: template-application-go.amd64.msi
-    #     asset_path: build/template-application-go.amd64.msi
+    #     asset_name: renovate-server.amd64.msi
+    #     asset_path: build/renovate-server.amd64.msi
     #     asset_content_type: application/x-msdownload
 
-    # - name: Upload template-application-go-arm64.pkg
+    # - name: Upload renovate-server-arm64.pkg
     #   uses: actions/upload-release-asset@v1
     #   env:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     #   with:
     #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #     asset_name: template-application-go.arm64.pkg
-    #     asset_path: build/template-application-go.arm64.pkg
+    #     asset_name: renovate-server.arm64.pkg
+    #     asset_path: build/renovate-server.arm64.pkg
     #     asset_content_type: application/octet-stream
 
-    # - name: Upload template-application-go-amd64.pkg
+    # - name: Upload renovate-server-amd64.pkg
     #   uses: actions/upload-release-asset@v1
     #   env:
     #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     #   with:
     #     upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #     asset_name: template-application-go.amd64.pkg
-    #     asset_path: build/template-application-go.amd64.pkg
+    #     asset_name: renovate-server.amd64.pkg
+    #     asset_path: build/renovate-server.amd64.pkg
     #     asset_content_type: application/octet-stream

@@ -31,25 +31,28 @@ vendor:
 include scripts/test/unit.mk
 
 # binary build
-include scripts/build/template-application-go.mk
+include scripts/build/renovate-server.mk
 
 # image
-include scripts/image/template-application-go.mk
+include scripts/image/renovate-server.mk
 
 image.build.linux.all: \
-	image.build.template-application-go.linux.all
+	image.build.renovate-server.linux.all
 
 image.build.windows.all: \
-	image.build.template-application-go.windows.all
+	image.build.renovate-server.windows.all
 
 image.push.linux.all: \
-	image.push.template-application-go.linux.all
+	image.push.renovate-server.linux.all
 
 image.push.windows.all: \
-	image.push.template-application-go.windows.all
+	image.push.renovate-server.windows.all
+
+# manifest gen
+include scripts/gen/manifest.mk
 
 # packaging
-include scripts/package/template-application-go.mk
+include scripts/package/renovate-server.mk
 
 # optional private scripts
 -include private/scripts.mk
