@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"arhat.dev/pkg/log"
 	"github.com/xanzy/go-gitlab"
 
 	"arhat.dev/renovate-server/pkg/conf"
@@ -47,7 +48,12 @@ func NewManager(
 	}
 
 	return &Manager{
-		ctx:      ctx,
+		ctx: ctx,
+
+		logger: log.Log.WithName("gitlab").WithFields(
+			log.String("path", config.Webhook.Path),
+			log.String("api", config.API.BaseURL),
+		),
 		client:   glClient,
 		executor: executor,
 
@@ -59,7 +65,9 @@ func NewManager(
 }
 
 type Manager struct {
-	ctx      context.Context
+	ctx context.Context
+
+	logger   log.Interface
 	client   *gitlab.Client
 	executor types.Executor
 
