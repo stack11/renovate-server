@@ -237,25 +237,3 @@ renovate-server.aix.ppc64:
 
 renovate-server.dragonfly.amd64:
 	sh scripts/build/build.sh $@
-
-renovate-server.plan9.amd64:
-	sh scripts/build/build.sh $@
-
-renovate-server.plan9.x86:
-	sh scripts/build/build.sh $@
-
-renovate-server.plan9.armv5:
-	sh scripts/build/build.sh $@
-
-renovate-server.plan9.armv6:
-	sh scripts/build/build.sh $@
-
-renovate-server.plan9.armv7:
-	sh scripts/build/build.sh $@
-
-renovate-server.plan9.all: \
-	renovate-server.plan9.amd64 \
-	renovate-server.plan9.armv7 \
-	renovate-server.plan9.x86 \
-	renovate-server.plan9.armv5 \
-	renovate-server.plan9.armv6

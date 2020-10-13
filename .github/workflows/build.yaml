@@ -44,7 +44,6 @@ jobs:
         make -j$(nproc --all) renovate-server.freebsd.all TAGS=''
         make -j$(nproc --all) renovate-server.netbsd.all TAGS=''
         make -j$(nproc --all) renovate-server.openbsd.all TAGS=''
-        make -j$(nproc --all) renovate-server.plan9.all TAGS=''
         make -j$(nproc --all) renovate-server.solaris.amd64 TAGS=''
         make -j$(nproc --all) renovate-server.aix.ppc64 TAGS=''
         make -j$(nproc --all) renovate-server.dragonfly.amd64 TAGS=''
@@ -55,7 +54,7 @@ jobs:
 
     - name: Hash
       run: |
-        os_list="linux freebsd netbsd openbsd plan9 aix solaris dragonfly"
+        os_list="linux freebsd netbsd openbsd aix solaris dragonfly"
 
         cd build
         for os in ${os_list}; do
@@ -219,7 +218,7 @@ jobs:
     - name: Create Checksum Files
       run: |
         files="sha256 sha512 md5"
-        os_list="darwin windows freebsd netbsd openbsd plan9 aix solaris dragonfly"
+        os_list="darwin windows freebsd netbsd openbsd aix solaris dragonfly"
 
         for f in ${files}; do
           printf "# Linux builds\n\n" > "build/${f}.txt"
@@ -680,56 +679,6 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_name: renovate-server.netbsd.arm64
         asset_path: build/renovate-server.netbsd.arm64
-        asset_content_type: application/octet-stream
-
-    - name: Upload renovate-server.plan9.x86
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.plan9.x86
-        asset_path: build/renovate-server.plan9.x86
-        asset_content_type: application/octet-stream
-
-    - name: Upload renovate-server.plan9.amd64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.plan9.amd64
-        asset_path: build/renovate-server.plan9.amd64
-        asset_content_type: application/octet-stream
-
-    - name: Upload renovate-server.plan9.armv5
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.plan9.armv5
-        asset_path: build/renovate-server.plan9.armv5
-        asset_content_type: application/octet-stream
-
-    - name: Upload renovate-server.plan9.armv6
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.plan9.armv6
-        asset_path: build/renovate-server.plan9.armv6
-        asset_content_type: application/octet-stream
-
-    - name: Upload renovate-server.plan9.armv7
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.plan9.armv7
-        asset_path: build/renovate-server.plan9.armv7
         asset_content_type: application/octet-stream
 
     - name: Upload renovate-server.dragonfly.amd64
