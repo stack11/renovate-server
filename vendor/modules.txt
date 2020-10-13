@@ -2,6 +2,7 @@
 ## explicit
 arhat.dev/pkg/confhelper
 arhat.dev/pkg/envhelper
+arhat.dev/pkg/hashhelper
 arhat.dev/pkg/log
 # github.com/DataDog/sketches-go v0.0.0-20190923095040-43f19ad77ff7
 github.com/DataDog/sketches-go/ddsketch
@@ -73,6 +74,8 @@ github.com/open-telemetry/opentelemetry-proto/gen/go/trace/v1
 github.com/openzipkin/zipkin-go/model
 # github.com/pkg/errors v0.9.1
 github.com/pkg/errors
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
 # github.com/prometheus/client_golang v1.5.0
 github.com/prometheus/client_golang/prometheus
 github.com/prometheus/client_golang/prometheus/internal
@@ -93,6 +96,9 @@ github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
 ## explicit
 github.com/spf13/pflag
+# github.com/stretchr/testify v1.6.1
+## explicit
+github.com/stretchr/testify/assert
 # github.com/xanzy/go-gitlab v0.38.1
 ## explicit
 github.com/xanzy/go-gitlab
@@ -286,7 +292,10 @@ gopkg.in/inf.v0
 # gopkg.in/yaml.v2 v2.3.0
 ## explicit
 gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c
+gopkg.in/yaml.v3
 # k8s.io/api v0.18.9 => github.com/kubernetes/api v0.18.9
+## explicit
 k8s.io/api/admissionregistration/v1
 k8s.io/api/admissionregistration/v1beta1
 k8s.io/api/apps/v1
@@ -328,6 +337,7 @@ k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
 # k8s.io/apimachinery v0.18.9 => github.com/kubernetes/apimachinery v0.18.9
+## explicit
 k8s.io/apimachinery/pkg/api/errors
 k8s.io/apimachinery/pkg/api/meta
 k8s.io/apimachinery/pkg/api/resource
@@ -367,6 +377,7 @@ k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/third_party/forked/golang/json
 k8s.io/apimachinery/third_party/forked/golang/reflect
 # k8s.io/client-go v0.18.9 => github.com/kubernetes/client-go v0.18.9
+## explicit
 k8s.io/client-go/discovery
 k8s.io/client-go/discovery/fake
 k8s.io/client-go/kubernetes
