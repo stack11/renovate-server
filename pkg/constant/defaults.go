@@ -31,3 +31,10 @@ const (
 const (
 	DefaultGitLabAPIBaseURL = "https://gitlab.com/"
 )
+
+// Renovate config
+
+const (
+	DefaultRenovateImage           = "docker.io/renovate/renovate:latest"
+	DefaultRenovateImagePullPolicy = "Always"
+)

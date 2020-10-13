@@ -38,6 +38,16 @@ type ServerConfig struct {
 		Listen string               `json:"listen" yaml:"listen"`
 		TLS    confhelper.TLSConfig `json:"tls" yaml:"tls"`
 	} `json:"webhook" yaml:"webhook"`
+
+	Executor struct {
+		Kubernetes *KubernetesExecutorConfig `json:"kubernetes" yaml:"kubernetes"`
+	} `json:"executor" yaml:"executor"`
+}
+
+type KubernetesExecutorConfig struct {
+	KubeClient              confhelper.KubeClientConfig `json:"kubeClient" yaml:"kubeClient"`
+	RenovateImage           string                      `json:"renovateImage" yaml:"renovateImage"`
+	RenovateImagePullPolicy string                      `json:"renovateImagePullPolicy" yaml:"renovateImagePullPolicy"`
 }
 
 func FlagsForServer(prefix string, config *ServerConfig) *pflag.FlagSet {
@@ -47,6 +57,12 @@ func FlagsForServer(prefix string, config *ServerConfig) *pflag.FlagSet {
 		constant.DefaultWebhookListenAddress, "set webhook listener address",
 	)
 	fs.AddFlagSet(confhelper.FlagsForTLSConfig(prefix+"webhook.tls", &config.Webhook.TLS))
+	fs.StringVar(&config.Executor.Kubernetes.RenovateImage, prefix+"executor.kubernetes.renovateImage",
+		constant.DefaultRenovateImage, "renovate image",
+	)
+	fs.StringVar(&config.Executor.Kubernetes.RenovateImage, prefix+"executor.kubernetes.renovateImagePullPolicy",
+		constant.DefaultRenovateImagePullPolicy, "image pull policy for renovate image",
+	)
 
 	return fs
 }

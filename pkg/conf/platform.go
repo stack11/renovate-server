@@ -88,7 +88,13 @@ type APICommonConfig struct {
 }
 
 type WebhookConfig struct {
-	Path string `json:"path" yaml:"path"`
+	Path   string `json:"path" yaml:"path"`
+	Secret string `json:"secret" yaml:"secret"`
+}
+
+type GitConfig struct {
+	User  string `json:"username" yaml:"username"`
+	Email string `json:"email" yaml:"email"`
 }
 
 type GitHubConfig struct {
@@ -98,6 +104,7 @@ type GitHubConfig struct {
 		UploadURL string `json:"uploadURL" yaml:"uploadURL"`
 	} `json:"api" yaml:"api"`
 
+	Git      GitConfig       `json:"git" yaml:"git"`
 	Webhook  WebhookConfig   `json:"webhook" yaml:"webhook"`
 	Projects []ProjectConfig `json:"projects" yaml:"projects"`
 }
@@ -107,6 +114,7 @@ type GitLabConfig struct {
 		APICommonConfig `json:",inline" yaml:",inline"`
 	} `json:"api" yaml:"api"`
 
+	Git      GitConfig       `json:"git" yaml:"git"`
 	Webhook  WebhookConfig   `json:"webhook" yaml:"webhook"`
 	Projects []ProjectConfig `json:"projects" yaml:"projects"`
 }

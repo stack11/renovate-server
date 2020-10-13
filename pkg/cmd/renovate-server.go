@@ -18,6 +18,9 @@ package cmd
 
 import (
 	"context"
+	"fmt"
+
+	"arhat.dev/renovate-server/pkg/controller"
 
 	"arhat.dev/pkg/log"
 	"github.com/spf13/cobra"
@@ -68,6 +71,24 @@ func NewRenovateServerCmd() *cobra.Command {
 func run(appCtx context.Context, config *conf.Config) error {
 	logger := log.Log.WithName("server")
 
-	_ = logger
-	return nil
+	logger.I("creating controller")
+	ctrl, err := controller.NewController(appCtx, config)
+	if err != nil {
+		return fmt.Errorf("failed to create controller: %w", err)
+	}
+
+	logger.I("starting controller")
+
+	err = ctrl.Start()
+	if err != nil {
+		return fmt.Errorf("failed to start controller: %w", err)
+	}
+
+	logger.I("controller running")
+
+	// nolint:gosimple
+	select {
+	case <-appCtx.Done():
+		return nil
+	}
 }

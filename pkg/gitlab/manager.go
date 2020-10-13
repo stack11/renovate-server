@@ -3,7 +3,6 @@ package gitlab
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	"github.com/xanzy/go-gitlab"
 
@@ -12,7 +11,11 @@ import (
 	"arhat.dev/renovate-server/pkg/types"
 )
 
-func NewManager(ctx context.Context, config *conf.GitLabConfig) (types.PlatformManager, error) {
+func NewManager(
+	ctx context.Context,
+	config *conf.GitLabConfig,
+	executor types.Executor,
+) (types.PlatformManager, error) {
 	client, err := config.API.Client.NewClient()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http client")
@@ -24,34 +27,44 @@ func NewManager(ctx context.Context, config *conf.GitLabConfig) (types.PlatformM
 	}
 
 	var glClient *gitlab.Client
-	if b := config.API.Auth.Basic; b != nil {
-		glClient, err = gitlab.NewBasicAuthClient(b.Username, b.Password,
-			gitlab.WithBaseURL(baseURL),
-			gitlab.WithHTTPClient(client),
-		)
-	} else if o := config.API.Auth.OAuth; o != nil {
+	//if b := config.API.Auth.Basic; b != nil {
+	//	glClient, err = gitlab.NewBasicAuthClient(b.Username, b.Password,
+	//		gitlab.WithBaseURL(baseURL),
+	//		gitlab.WithHTTPClient(client),
+	//	)
+	//}
+
+	if o := config.API.Auth.OAuth; o != nil {
 		glClient, err = gitlab.NewOAuthClient(o.Token,
 			gitlab.WithBaseURL(baseURL),
 			gitlab.WithHTTPClient(client),
 		)
 	} else {
-		return nil, fmt.Errorf("no auth method provided")
+		return nil, fmt.Errorf("no oauth token provided")
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to create gitlab client: %w", err)
 	}
 
 	return &Manager{
-		ctx:    ctx,
-		client: glClient,
+		ctx:      ctx,
+		client:   glClient,
+		executor: executor,
+
+		apiURL:   baseURL,
+		apiToken: config.API.Auth.OAuth.Token,
+		gitUser:  config.Git.User,
+		gitEmail: config.Git.Email,
 	}, nil
 }
 
 type Manager struct {
-	ctx    context.Context
-	client *gitlab.Client
-}
+	ctx      context.Context
+	client   *gitlab.Client
+	executor types.Executor
 
-func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	http.Error(w, "unimplemented", http.StatusNotImplemented)
+	apiURL   string
+	apiToken string
+	gitUser  string
+	gitEmail string
 }

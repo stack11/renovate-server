@@ -9,25 +9,40 @@ import (
 	"net/http"
 
 	"arhat.dev/renovate-server/pkg/conf"
+	"arhat.dev/renovate-server/pkg/executor"
 	"arhat.dev/renovate-server/pkg/github"
 	"arhat.dev/renovate-server/pkg/gitlab"
 	"arhat.dev/renovate-server/pkg/types"
 )
 
 func NewController(ctx context.Context, config *conf.Config) (*Controller, error) {
+	var (
+		exec types.Executor
+		err  error
+	)
+	switch {
+	case config.Server.Executor.Kubernetes != nil:
+		exec, err = executor.NewKubernetesExecutor(config.Server.Executor.Kubernetes)
+	default:
+		return nil, fmt.Errorf("no executor provided")
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to create executor: %w", err)
+	}
+
 	managers := make(map[string]types.PlatformManager)
 	for i, gh := range config.GitHub {
-		mgr, err := github.NewManager(ctx, &config.GitHub[i])
-		if err != nil {
-			return nil, fmt.Errorf("failed to create github manager, index %d: %w", i, err)
+		mgr, err2 := github.NewManager(ctx, &config.GitHub[i], exec)
+		if err2 != nil {
+			return nil, fmt.Errorf("failed to create github manager, index %d: %w", i, err2)
 		}
 		managers[gh.Webhook.Path] = mgr
 	}
 
 	for i, gh := range config.GitHub {
-		mgr, err := gitlab.NewManager(ctx, &config.GitLab[i])
-		if err != nil {
-			return nil, fmt.Errorf("failed to create gitlab manager, index %d: %w", i, err)
+		mgr, err2 := gitlab.NewManager(ctx, &config.GitLab[i], exec)
+		if err2 != nil {
+			return nil, fmt.Errorf("failed to create gitlab manager, index %d: %w", i, err2)
 		}
 		managers[gh.Webhook.Path] = mgr
 	}
@@ -79,6 +94,17 @@ func (c *Controller) Start() error {
 		err2 := srv.Serve(l)
 		if err2 != nil && errors.Is(err, http.ErrServerClosed) {
 			panic(fmt.Errorf("failed to serve webhook server: %w", err))
+		}
+	}()
+
+	go func() {
+		defer func() {
+			_ = srv.Close()
+		}()
+
+		// nolint:gosimple
+		select {
+		case <-c.ctx.Done():
 		}
 	}()
 
