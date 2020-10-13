@@ -1,0 +1,31 @@
+{{- if .Values.serviceAccount.create -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "renovate-server.serviceAccountName" . }}
+  labels:
+    {{- include "renovate-server.labels" . | nindent 4 }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- if .Values.rbac.create }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "renovate-server.fullname" . }}:controller
+rules:
+- apiGroups: [""]
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+- apiGroups: ["batch"]
+  resources:
+  - jobs
+  verbs:
+  - create
+{{- end }}

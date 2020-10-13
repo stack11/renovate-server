@@ -1,4 +1,16 @@
 ---
+# Source: renovate-server/templates/rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: renovate-server
+  labels:
+    helm.sh/chart: renovate-server-0.1.0
+    app.kubernetes.io/name: renovate-server
+    app.kubernetes.io/instance: renovate-server
+    app.kubernetes.io/version: "latest"
+    app.kubernetes.io/managed-by: Helm
+---
 # Source: renovate-server/templates/secret.yaml
 apiVersion: v1
 kind: Secret
@@ -33,20 +45,40 @@ data:
       webhook:
         path: /gitlab-com
     server:
+      executor:
+        kubernetes:
+          kubeClient:
+            fake: false
+            rateLimit:
+              burst: 10
+              enabled: false
+              qps: 5
+          renovateImage: docker.io/renovate/renovate:latest
+          renovateImagePullPolicy: Always
       log:
       - file: stderr
         format: console
         level: verbose
       webhook:
         listen: :8080
-        tls:
-          caCertData: |
-            <PEM ENCODED CA CERTS>
-          certData: |
-            <PEM ENCODED CERTIFICATE>
-          enabled: true
-          keyData: |
-            <PEM ENCODED CERTIFICATE KEY>
+---
+# Source: renovate-server/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: renovate-server:controller
+rules:
+- apiGroups: [""]
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+- apiGroups: ["batch"]
+  resources:
+  - jobs
+  verbs:
+  - create
 ---
 # Source: renovate-server/templates/service.yaml
 apiVersion: v1
@@ -95,23 +127,21 @@ spec:
     spec:
       securityContext:
         {}
+      serviceAccountName: renovate-server
       containers:
         - name: renovate-server
           securityContext:
             {}
           image: "docker.io/arhatdev/renovate-server:latest"
           imagePullPolicy: IfNotPresent
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8080
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
           resources:
             {}

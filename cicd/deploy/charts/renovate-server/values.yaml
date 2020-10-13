@@ -29,6 +29,18 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+rbac:
+  create: true
+
 service:
   type: ClusterIP
   port: 80
@@ -71,17 +83,30 @@ config:
       #     <PEM ENCODED CERTIFICATE>
       #   keyData: |
       #     <PEM ENCODED CERTIFICATE KEY>
+    executor:
+      kubernetes:
+        kubeClient:
+          fake: false
+          # kubeconfig:
+          rateLimit:
+            # diable rate limit
+            enabled: false
+            qps: 5
+            burst: 10
+
+        renovateImage: docker.io/renovate/renovate:latest
+        renovateImagePullPolicy: Always
+
   github:
-  - api:
+  - git:
+      user: My Bot
+      email: USERID+USERNAME@users.noreply.github.com
+    api:
       baseURL: https://api.github.com/
       uploadURL: https://uploads.github.com/
       auth:
         oauth:
           token: <my personal github api token>
-        # basic:
-        #   otp: ""
-        #   username: ""
-        #   password: ""
       # client:
       #   # proxy:
       #   #   http: ""
@@ -99,6 +124,7 @@ config:
       #     serverName: ""
     webhook:
       path: /github-com
+      secret: <my secret for hmac>
     projects: []
 
   gitlab:
@@ -107,9 +133,6 @@ config:
       auth:
         oauth:
           token: <my personal gitlab api token>
-        # basic:
-        #   username: ""
-        #   password: ""
       # client:
       #   # proxy:
       #   #   http: ""
@@ -127,4 +150,5 @@ config:
       #     serverName: ""
     webhook:
       path: /gitlab-com
+      secret: <my secret for hmac>
     projects: []
