@@ -97,58 +97,58 @@ config:
         renovateImage: docker.io/renovate/renovate:latest
         renovateImagePullPolicy: Always
 
-  github:
-  - git:
-      user: My Bot
-      email: USERID+USERNAME@users.noreply.github.com
-    api:
-      baseURL: https://api.github.com/
-      uploadURL: https://uploads.github.com/
-      auth:
-        oauth:
-          token: <my personal github api token>
-      # client:
-      #   # proxy:
-      #   #   http: ""
-      #   #   https: ""
-      #   #   noProxy: ""
-      #   #   cgi: false
-      #   tls:
-      #     enabled: false
-      #     caCertData: |
-      #       <PEM ENCODED CA CERTS>
-      #     certData: |
-      #       <PEM ENCODED CERTIFICATE>
-      #     keyData: |
-      #       <PEM ENCODED CERTIFICATE KEY>
-      #     serverName: ""
-    webhook:
-      path: /github-com
-      secret: <my secret for hmac>
-    projects: []
+  github: []
+  # - git:
+  #     user: My Bot
+  #     email: USERID+USERNAME@users.noreply.github.com
+  #   api:
+  #     baseURL: https://api.github.com/
+  #     uploadURL: https://uploads.github.com/
+  #     auth:
+  #       oauth:
+  #         token: <my personal github api token>
+  #     # client:
+  #     #   # proxy:
+  #     #   #   http: ""
+  #     #   #   https: ""
+  #     #   #   noProxy: ""
+  #     #   #   cgi: false
+  #     #   tls:
+  #     #     enabled: false
+  #     #     caCertData: |
+  #     #       <PEM ENCODED CA CERTS>
+  #     #     certData: |
+  #     #       <PEM ENCODED CERTIFICATE>
+  #     #     keyData: |
+  #     #       <PEM ENCODED CERTIFICATE KEY>
+  #     #     serverName: ""
+  #   webhook:
+  #     path: /github-com
+  #     secret: <my secret for hmac>
+  #   projects: []
 
-  gitlab:
-  - api:
-      baseURL: https://gitlab.com/
-      auth:
-        oauth:
-          token: <my personal gitlab api token>
-      # client:
-      #   # proxy:
-      #   #   http: ""
-      #   #   https: ""
-      #   #   noProxy: ""
-      #   #   cgi: false
-      #   tls:
-      #     enabled: false
-      #     caCertData: |
-      #       <PEM ENCODED CA CERTS>
-      #     certData: |
-      #       <PEM ENCODED CERTIFICATE>
-      #     keyData: |
-      #       <PEM ENCODED CERTIFICATE KEY>
-      #     serverName: ""
-    webhook:
-      path: /gitlab-com
-      secret: <my secret for hmac>
-    projects: []
+  gitlab: []
+  # - api:
+  #     baseURL: https://gitlab.com/
+  #     auth:
+  #       oauth:
+  #         token: <my personal gitlab api token>
+  #     # client:
+  #     #   # proxy:
+  #     #   #   http: ""
+  #     #   #   https: ""
+  #     #   #   noProxy: ""
+  #     #   #   cgi: false
+  #     #   tls:
+  #     #     enabled: false
+  #     #     caCertData: |
+  #     #       <PEM ENCODED CA CERTS>
+  #     #     certData: |
+  #     #       <PEM ENCODED CERTIFICATE>
+  #     #     keyData: |
+  #     #       <PEM ENCODED CERTIFICATE KEY>
+  #     #     serverName: ""
+  #   webhook:
+  #     path: /gitlab-com
+  #     secret: <my secret for hmac>
+  #   projects: []

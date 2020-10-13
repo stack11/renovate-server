@@ -25,12 +25,23 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       serviceAccountName: {{ include "renovate-server.serviceAccountName" . }}
+      volumes:
+        - name: config
+          secret:
+            secretName: {{ include "renovate-server.fullname" . }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /renovate-server
+            - -c
+            - /etc/renovate-server/config.yaml
+          volumeMounts:
+          - name: config
+            mountPath: /etc/renovate-server
           env:
             - name: POD_NAMESPACE
               valueFrom:
