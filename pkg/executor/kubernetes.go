@@ -35,9 +35,13 @@ func NewKubernetesExecutor(config *conf.KubernetesExecutorConfig) (types.Executo
 	default:
 		return nil, fmt.Errorf("unsupported image pull policy: %s", config.RenovateImagePullPolicy)
 	}
+	image := config.RenovateImage
+	if image == "" {
+		image = constant.DefaultRenovateImage
+	}
 
 	return &KubernetesExecutor{
-		image:           config.RenovateImage,
+		image:           image,
 		imagePullPolicy: pullPolicy,
 
 		secretClient: client.CoreV1().Secrets(envhelper.ThisPodNS()),

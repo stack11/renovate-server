@@ -57,12 +57,6 @@ func FlagsForServer(prefix string, config *ServerConfig) *pflag.FlagSet {
 		constant.DefaultWebhookListenAddress, "set webhook listener address",
 	)
 	fs.AddFlagSet(confhelper.FlagsForTLSConfig(prefix+"webhook.tls", &config.Webhook.TLS))
-	fs.StringVar(&config.Executor.Kubernetes.RenovateImage, prefix+"executor.kubernetes.renovateImage",
-		constant.DefaultRenovateImage, "renovate image",
-	)
-	fs.StringVar(&config.Executor.Kubernetes.RenovateImage, prefix+"executor.kubernetes.renovateImagePullPolicy",
-		constant.DefaultRenovateImagePullPolicy, "image pull policy for renovate image",
-	)
 
 	return fs
 }
