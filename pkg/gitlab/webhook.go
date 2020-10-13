@@ -14,6 +14,13 @@ import (
 func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	logger := m.logger.WithFields()
 
+	defer func() {
+		err := recover()
+		if err != nil {
+			logger.E("recovered", log.Any("panic", err))
+		}
+	}()
+
 	logger.D("received event")
 
 	payload, err := ioutil.ReadAll(req.Body)

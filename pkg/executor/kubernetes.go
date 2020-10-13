@@ -19,7 +19,7 @@ import (
 	"arhat.dev/renovate-server/pkg/types"
 )
 
-func NewKubernetesExecutor(config *conf.KubernetesExecutorConfig) (types.Executor, error) {
+func NewKubernetesExecutor(ctx context.Context, config *conf.KubernetesExecutorConfig) (types.Executor, error) {
 	client, _, err := config.KubeClient.NewKubeClient(nil, true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create kubernetes client: %w", err)
@@ -35,12 +35,15 @@ func NewKubernetesExecutor(config *conf.KubernetesExecutorConfig) (types.Executo
 	default:
 		return nil, fmt.Errorf("unsupported image pull policy: %s", config.RenovateImagePullPolicy)
 	}
+
 	image := config.RenovateImage
 	if image == "" {
 		image = constant.DefaultRenovateImage
 	}
 
 	return &KubernetesExecutor{
+		ctx: ctx,
+
 		image:           image,
 		imagePullPolicy: pullPolicy,
 
