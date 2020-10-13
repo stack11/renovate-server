@@ -39,7 +39,7 @@ func NewController(ctx context.Context, config *conf.Config) (*Controller, error
 		managers[gh.Webhook.Path] = mgr
 	}
 
-	for i, gh := range config.GitHub {
+	for i, gh := range config.GitLab {
 		mgr, err2 := gitlab.NewManager(ctx, &config.GitLab[i], exec)
 		if err2 != nil {
 			return nil, fmt.Errorf("failed to create gitlab manager, index %d: %w", i, err2)
