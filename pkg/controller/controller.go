@@ -7,6 +7,10 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"time"
+
+	"arhat.dev/pkg/log"
+	"arhat.dev/pkg/queue"
 
 	"arhat.dev/renovate-server/pkg/conf"
 	"arhat.dev/renovate-server/pkg/executor"
@@ -30,41 +34,52 @@ func NewController(ctx context.Context, config *conf.Config) (*Controller, error
 		return nil, fmt.Errorf("failed to create executor: %w", err)
 	}
 
-	managers := make(map[string]types.PlatformManager)
-	for i, gh := range config.GitHub {
-		mgr, err2 := github.NewManager(ctx, &config.GitHub[i], exec)
-		if err2 != nil {
-			return nil, fmt.Errorf("failed to create github manager, index %d: %w", i, err2)
-		}
-		managers[gh.Webhook.Path] = mgr
-	}
-
-	for i, gh := range config.GitLab {
-		mgr, err2 := gitlab.NewManager(ctx, &config.GitLab[i], exec)
-		if err2 != nil {
-			return nil, fmt.Errorf("failed to create gitlab manager, index %d: %w", i, err2)
-		}
-		managers[gh.Webhook.Path] = mgr
-	}
-
 	tlsConfig, err := config.Server.Webhook.TLS.GetTLSConfig(true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create tls config for webhook server: %w", err)
 	}
 
-	return &Controller{
-		ctx:        ctx,
+	ctrl := &Controller{
+		ctx: ctx,
+
+		logger:     log.Log.WithName("controller"),
 		listenAddr: config.Server.Webhook.Listen,
-		managers:   managers,
+		managers:   make(map[string]types.PlatformManager),
 		tlsConfig:  tlsConfig,
-	}, nil
+
+		executor: exec,
+		tq:       queue.NewTimeoutQueue(),
+	}
+
+	for i, gh := range config.GitHub {
+		mgr, err2 := github.NewManager(ctx, &config.GitHub[i], ctrl)
+		if err2 != nil {
+			return nil, fmt.Errorf("failed to create github manager, index %d: %w", i, err2)
+		}
+		ctrl.managers[gh.Webhook.Path] = mgr
+	}
+
+	for i, gh := range config.GitLab {
+		mgr, err2 := gitlab.NewManager(ctx, &config.GitLab[i], ctrl)
+		if err2 != nil {
+			return nil, fmt.Errorf("failed to create gitlab manager, index %d: %w", i, err2)
+		}
+		ctrl.managers[gh.Webhook.Path] = mgr
+	}
+
+	return ctrl, nil
 }
 
 type Controller struct {
-	ctx        context.Context
+	ctx context.Context
+
+	logger     log.Interface
 	listenAddr string
 	managers   map[string]types.PlatformManager
 	tlsConfig  *tls.Config
+
+	executor types.Executor
+	tq       *queue.TimeoutQueue
 }
 
 func (c *Controller) Start() error {
@@ -90,6 +105,27 @@ func (c *Controller) Start() error {
 		l = tls.NewListener(l, c.tlsConfig)
 	}
 
+	c.tq.Start(c.ctx.Done())
+
+	go func() {
+		ch := c.tq.TakeCh()
+		for d := range ch {
+			args := d.Key.(types.ExecutionArgs)
+			c.logger.I("executing renovate")
+			err2 := c.executor.Execute(args)
+			if err2 != nil {
+				c.logger.I("failed to execute renovate for repo, rescheduling",
+					log.String("repo", args.Repo),
+					log.String("endpoint", args.APIURL),
+					log.Error(err),
+				)
+				_ = c.Schedule(args)
+			} else {
+				c.logger.I("finished renovate execution")
+			}
+		}
+	}()
+
 	go func() {
 		err2 := srv.Serve(l)
 		if err2 != nil && errors.Is(err, http.ErrServerClosed) {
@@ -109,4 +145,10 @@ func (c *Controller) Start() error {
 	}()
 
 	return nil
+}
+
+func (c *Controller) Schedule(args types.ExecutionArgs) error {
+	c.tq.Remove(args)
+
+	return c.tq.OfferWithDelay(args, args, 5*time.Second)
 }

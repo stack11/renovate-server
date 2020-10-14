@@ -18,7 +18,7 @@ import (
 func NewManager(
 	ctx context.Context,
 	config *conf.PlatformConfig,
-	executor types.Executor,
+	scheduler types.Scheduler,
 ) (types.PlatformManager, error) {
 	client, err := config.API.Client.NewClient()
 	if err != nil {
@@ -63,8 +63,8 @@ func NewManager(
 			log.String("path", config.Webhook.Path),
 			log.String("api", config.API.BaseURL),
 		),
-		client:   ghClient,
-		executor: executor,
+		client:    ghClient,
+		scheduler: scheduler,
 
 		defaultDashboardTitle: config.DashboardIssueTitle,
 		dashboardTitles:       dashboardTitles,
@@ -81,9 +81,9 @@ func NewManager(
 type Manager struct {
 	ctx context.Context
 
-	logger   log.Interface
-	client   *github.Client
-	executor types.Executor
+	logger    log.Interface
+	client    *github.Client
+	scheduler types.Scheduler
 
 	defaultDashboardTitle string
 	dashboardTitles       map[string]string

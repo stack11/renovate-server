@@ -128,10 +128,10 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	logger.I("executing renovate")
+	logger.I("scheduling renovate execution")
 
 	// run renovate against this repo
-	err = m.executor.Execute(types.ExecutionArgs{
+	err = m.scheduler.Schedule(types.ExecutionArgs{
 		Platform: "github",
 		APIURL:   m.apiURL,
 		APIToken: m.apiToken,
@@ -140,11 +140,11 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		GitEmail: m.gitEmail,
 	})
 	if err != nil {
-		logger.I("failed to execute renovate", log.Error(err))
+		logger.I("failed to schedule renovate execution", log.Error(err))
 		http.Error(w, "failed to execute renovate", http.StatusInternalServerError)
 		return
 	}
 
-	logger.I("executed renovate")
+	logger.I("scheduled renovate execution")
 	w.WriteHeader(http.StatusOK)
 }
