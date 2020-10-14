@@ -24,54 +24,13 @@ metadata:
     app.kubernetes.io/managed-by: Helm
 type: Opaque
 data:
-  config.yaml: |
-    github:
-    - api:
-        auth:
-          oauth:
-            token: <my personal github api token>
-        baseURL: https://api.github.com/
-        uploadURL: https://uploads.github.com/
-      git:
-        email: USERID+USERNAME@users.noreply.github.com
-        user: My Bot
-      projects: []
-      webhook:
-        path: /github-com
-        secret: <my secret for hmac>
-    gitlab:
-    - api:
-        auth:
-          oauth:
-            token: <my personal gitlab api token>
-        baseURL: https://gitlab.com/
-      projects: []
-      webhook:
-        path: /gitlab-com
-        secret: <my secret for hmac>
-    server:
-      executor:
-        kubernetes:
-          kubeClient:
-            fake: false
-            rateLimit:
-              burst: 10
-              enabled: false
-              qps: 5
-          renovateImage: docker.io/renovate/renovate:latest
-          renovateImagePullPolicy: Always
-      log:
-      - file: stderr
-        format: console
-        level: verbose
-      webhook:
-        listen: :8080
+  config.yaml: Z2l0aHViOiBbXQpnaXRsYWI6IFtdCnNlcnZlcjoKICBleGVjdXRvcjoKICAgIGt1YmVybmV0ZXM6CiAgICAgIGt1YmVDbGllbnQ6CiAgICAgICAgZmFrZTogZmFsc2UKICAgICAgICByYXRlTGltaXQ6CiAgICAgICAgICBidXJzdDogMTAKICAgICAgICAgIGVuYWJsZWQ6IGZhbHNlCiAgICAgICAgICBxcHM6IDUKICAgICAgcmVub3ZhdGVJbWFnZTogZG9ja2VyLmlvL3Jlbm92YXRlL3Jlbm92YXRlOmxhdGVzdAogICAgICByZW5vdmF0ZUltYWdlUHVsbFBvbGljeTogQWx3YXlzCiAgbG9nOgogIC0gZmlsZTogc3RkZXJyCiAgICBmb3JtYXQ6IGNvbnNvbGUKICAgIGxldmVsOiB2ZXJib3NlCiAgd2ViaG9vazoKICAgIGxpc3RlbjogOjgwODA=
 ---
 # Source: renovate-server/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: renovate-server:controller
+  name: renovate-server
 rules:
 - apiGroups: [""]
   resources:
@@ -84,6 +43,20 @@ rules:
   - jobs
   verbs:
   - create
+---
+# Source: renovate-server/templates/rbac.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: renovate-server
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: renovate-server
+subjects:
+- kind: ServiceAccount
+  name: renovate-server
+  namespace: default
 ---
 # Source: renovate-server/templates/service.yaml
 apiVersion: v1
@@ -133,12 +106,23 @@ spec:
       securityContext:
         {}
       serviceAccountName: renovate-server
+      volumes:
+        - name: config
+          secret:
+            secretName: renovate-server
       containers:
         - name: renovate-server
           securityContext:
             {}
           image: "docker.io/arhatdev/renovate-server:latest"
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
+          command:
+            - /renovate-server
+            - -c
+            - /etc/renovate-server/config.yaml
+          volumeMounts:
+          - name: config
+            mountPath: /etc/renovate-server
           env:
             - name: POD_NAMESPACE
               valueFrom:

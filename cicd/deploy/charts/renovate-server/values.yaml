@@ -103,10 +103,7 @@ config:
   #     email: USERID+USERNAME@users.noreply.github.com
   #   api:
   #     baseURL: https://api.github.com/
-  #     uploadURL: https://uploads.github.com/
-  #     auth:
-  #       oauth:
-  #         token: <my personal github api token>
+  #     oauthToken: <my personal github api token>
   #     # client:
   #     #   # proxy:
   #     #   #   http: ""
@@ -122,17 +119,18 @@ config:
   #     #     keyData: |
   #     #       <PEM ENCODED CERTIFICATE KEY>
   #     #     serverName: ""
+  #   dashboardIssueTitle: Available dependency upgrades
   #   webhook:
   #     path: /github-com
   #     secret: <my secret for hmac>
-  #   projects: []
+  #   # projects:
+  #   # - name: foo/bar
+  #   #   dashboardIssueTitle: Available foo upgrades
 
   gitlab: []
   # - api:
   #     baseURL: https://gitlab.com/
-  #     auth:
-  #       oauth:
-  #         token: <my personal gitlab api token>
+  #     oauthToken: <my personal github api token>
   #     # client:
   #     #   # proxy:
   #     #   #   http: ""
@@ -148,7 +146,10 @@ config:
   #     #     keyData: |
   #     #       <PEM ENCODED CERTIFICATE KEY>
   #     #     serverName: ""
+  #   dashboardIssueTitle: Available dependency upgrades
   #   webhook:
   #     path: /gitlab-com
   #     secret: <my secret for hmac>
-  #   projects: []
+  #   # projects:
+  #   # - name: foo/bar
+  #   #   dashboardIssueTitle: Available foo upgrades
