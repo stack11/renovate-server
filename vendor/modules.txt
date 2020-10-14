@@ -4,6 +4,7 @@ arhat.dev/pkg/confhelper
 arhat.dev/pkg/envhelper
 arhat.dev/pkg/hashhelper
 arhat.dev/pkg/log
+arhat.dev/pkg/queue
 # github.com/DataDog/sketches-go v0.0.0-20190923095040-43f19ad77ff7
 github.com/DataDog/sketches-go/ddsketch
 # github.com/apache/thrift v0.13.0
