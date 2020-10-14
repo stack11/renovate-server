@@ -8,6 +8,30 @@
 
 Self-Hosted renovate server to automate renovate actions
 
+## Support Matrix
+
+- Webhook Events
+  - `issue` with dashboard title: edited/closed/reopened
+  - `pull/merge request` with checkbox edited/closed/reopened
+  - `push`
+- Platforms
+  - `gitlab`
+  - `github`
+- Executors
+  - `kubernetes` (creates kubernetes jobs to execute renovate)
+
+## Usage
+
+1. Create a `renovate` config in your repository, you can use [shareable config presets](https://docs.renovatebot.com/config-presets/) to save your time
+   - see [`arhat-dev/renovate-presets`](https://github.com/arhat-dev/renovate-presets) for example
+
+2. Deploy `renovate-server` to your local/cloud environment, then you will get a webhook endpoint exposed via your ingress controller
+   - for kubernetes, you can customize your installation with [helm chart](./cicd/deploy/charts/renovate-server)
+
+3. Configure your repository or organization, create a webhook for `renovate-server` with desired events, say `issues`, `pull requests` and `push`
+
+4. Now you are good to go, every time you trigger the webhook with desired event payload, `renovate-server` will execute renovate for you
+
 ## LICENSE
 
 ```text
