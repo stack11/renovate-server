@@ -2,7 +2,6 @@ package github
 
 import (
 	"net/http"
-	"strings"
 
 	"arhat.dev/pkg/log"
 	"github.com/google/go-github/v32/github"
@@ -37,7 +36,7 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	repoAPIURL := func() string {
+	repo := func() string {
 		switch evt := ev.(type) {
 		case *github.IssuesEvent:
 			logger.V("received issue event")
@@ -66,7 +65,7 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 			oldBody := *evt.Changes.Body.From
 			if util.ItemChecked(oldBody, evt.GetIssue().GetBody()) {
-				return evt.GetRepo().GetURL()
+				return evt.GetRepo().GetFullName()
 			}
 			return ""
 		case *github.PullRequestEvent:
@@ -92,26 +91,24 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 			oldBody := *evt.Changes.Body.From
 			if util.ItemChecked(oldBody, evt.GetPullRequest().GetBody()) {
-				return evt.GetRepo().GetURL()
+				return evt.GetRepo().GetFullName()
 			}
 			return ""
 		case *github.PushEvent:
 			logger.V("received push event")
-			return evt.GetRepo().GetURL()
+			return evt.GetRepo().GetFullName()
 		default:
 			logger.V("received ignored event")
 			return ""
 		}
 	}()
-	if repoAPIURL == "" {
+	if repo == "" {
 		logger.I("no execution triggered")
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	repo := strings.TrimPrefix(repoAPIURL, m.apiURLPrefix+"/repos/")
-
-	logger = logger.WithFields(log.String("repo", repo), log.String("url", repoAPIURL))
+	logger = logger.WithFields(log.String("repo", repo))
 
 	logger.I("executing renovate")
 
