@@ -80,10 +80,10 @@ func (c *HTTPClientConfig) NewClient() (*http.Client, error) {
 	}, nil
 }
 
-type APICommonConfig struct {
-	BaseURL string `json:"baseURL" yaml:"baseURL"`
+type APIConfig struct {
+	BaseURL    string `json:"baseURL" yaml:"baseURL"`
+	OAuthToken string `json:"oauthToken" yaml:"oauthToken"`
 
-	Auth   APIAuthConfig    `json:"auth" yaml:"auth"`
 	Client HTTPClientConfig `json:"client" yaml:"client"`
 }
 
@@ -97,24 +97,19 @@ type GitConfig struct {
 	Email string `json:"email" yaml:"email"`
 }
 
-type GitHubConfig struct {
-	API struct {
-		APICommonConfig `json:",inline" yaml:",inline"`
+type PlatformConfig struct {
+	API     APIConfig     `json:"api" yaml:"api"`
+	Git     GitConfig     `json:"git" yaml:"git"`
+	Webhook WebhookConfig `json:"webhook" yaml:"webhook"`
 
-		UploadURL string `json:"uploadURL" yaml:"uploadURL"`
-	} `json:"api" yaml:"api"`
+	DashboardIssueTitle string `json:"dashboardIssueTitle" yaml:"dashboardIssueTitle"`
 
-	Git      GitConfig       `json:"git" yaml:"git"`
-	Webhook  WebhookConfig   `json:"webhook" yaml:"webhook"`
 	Projects []ProjectConfig `json:"projects" yaml:"projects"`
 }
 
-type GitLabConfig struct {
-	API struct {
-		APICommonConfig `json:",inline" yaml:",inline"`
-	} `json:"api" yaml:"api"`
-
-	Git      GitConfig       `json:"git" yaml:"git"`
-	Webhook  WebhookConfig   `json:"webhook" yaml:"webhook"`
-	Projects []ProjectConfig `json:"projects" yaml:"projects"`
+type ProjectConfig struct {
+	// Name of the project (repo name)
+	Name string `json:"name" yaml:"name"`
+	// override default dashboard issue title
+	DashboardIssueTitle string `json:"dashboardIssueTitle" yaml:"dashboardIssueTitle"`
 }

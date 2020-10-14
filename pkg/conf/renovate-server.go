@@ -27,8 +27,8 @@ import (
 type Config struct {
 	Server ServerConfig `json:"server" yaml:"server"`
 
-	GitHub []GitHubConfig `json:"github" yaml:"github"`
-	GitLab []GitLabConfig `json:"gitlab" yaml:"gitlab"`
+	GitHub []PlatformConfig `json:"github" yaml:"github"`
+	GitLab []PlatformConfig `json:"gitlab" yaml:"gitlab"`
 }
 
 type ServerConfig struct {

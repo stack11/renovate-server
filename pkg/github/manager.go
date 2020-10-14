@@ -12,11 +12,12 @@ import (
 	"arhat.dev/renovate-server/pkg/conf"
 	"arhat.dev/renovate-server/pkg/constant"
 	"arhat.dev/renovate-server/pkg/types"
+	"arhat.dev/renovate-server/pkg/util"
 )
 
 func NewManager(
 	ctx context.Context,
-	config *conf.GitHubConfig,
+	config *conf.PlatformConfig,
 	executor types.Executor,
 ) (types.PlatformManager, error) {
 	client, err := config.API.Client.NewClient()
@@ -25,20 +26,9 @@ func NewManager(
 	}
 
 	var transport http.RoundTripper
-
-	// currently there is no basic auth support in renovate
-	//if b := config.API.Auth.Basic; b != nil {
-	//	transport = &github.BasicAuthTransport{
-	//		Username:  b.Username,
-	//		Password:  b.Password,
-	//		OTP:       b.OTP,
-	//		Transport: client.Transport,
-	//	}
-	//}
-
-	if o := config.API.Auth.OAuth; o != nil {
+	if o := config.API.OAuthToken; o != "" {
 		ts := oauth2.StaticTokenSource(&oauth2.Token{
-			AccessToken: o.Token,
+			AccessToken: o,
 		})
 
 		transport = oauth2.NewClient(context.WithValue(ctx, oauth2.HTTPClient, client), ts).Transport
@@ -46,13 +36,12 @@ func NewManager(
 		return nil, fmt.Errorf("no oauth token provided")
 	}
 
-	baseURL, uploadURL := config.API.BaseURL, config.API.UploadURL
+	baseURL := config.API.BaseURL
 	if baseURL == "" {
 		baseURL = constant.DefaultGitHubAPIBaseURL
-		uploadURL = constant.DefaultGitHubAPIUploadURL
 	}
 
-	ghClient, err := github.NewEnterpriseClient(baseURL, uploadURL, &http.Client{
+	ghClient, err := github.NewEnterpriseClient(baseURL, "", &http.Client{
 		Transport:     transport,
 		CheckRedirect: nil,
 		Jar:           nil,
@@ -62,9 +51,9 @@ func NewManager(
 		return nil, fmt.Errorf("failed to create github api client: %w", err)
 	}
 
-	apiURLPrefix := baseURL
-	for apiURLPrefix[len(apiURLPrefix)-1] == '/' {
-		apiURLPrefix = apiURLPrefix[:len(apiURLPrefix)-1]
+	dashboardTitles := make(map[string]string)
+	for _, p := range config.Projects {
+		dashboardTitles[p.Name] = p.DashboardIssueTitle
 	}
 
 	return &Manager{
@@ -77,10 +66,13 @@ func NewManager(
 		client:   ghClient,
 		executor: executor,
 
-		apiURLPrefix: apiURLPrefix,
-		apiToken:     config.API.Auth.OAuth.Token,
-		gitUser:      config.Git.User,
-		gitEmail:     config.Git.Email,
+		defaultDashboardTitle: config.DashboardIssueTitle,
+		dashboardTitles:       dashboardTitles,
+
+		apiURL:   baseURL,
+		apiToken: config.API.OAuthToken,
+		gitUser:  config.Git.User,
+		gitEmail: config.Git.Email,
 
 		webhookSecret: []byte(config.Webhook.Secret),
 	}, nil
@@ -93,10 +85,17 @@ type Manager struct {
 	client   *github.Client
 	executor types.Executor
 
-	apiURLPrefix string
-	apiToken     string
-	gitUser      string
-	gitEmail     string
+	defaultDashboardTitle string
+	dashboardTitles       map[string]string
+
+	apiURL   string
+	apiToken string
+	gitUser  string
+	gitEmail string
 
 	webhookSecret []byte
+}
+
+func (m *Manager) getDashboardTitle(repo string) string {
+	return util.GetOrDefault(m.dashboardTitles, repo, m.defaultDashboardTitle)
 }

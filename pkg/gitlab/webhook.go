@@ -40,42 +40,39 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	repo := func() string {
 		switch evt := ev.(type) {
 		case *gitlab.IssueEvent:
+			repo := evt.Project.PathWithNamespace
+			logger = logger.WithFields(log.String("repo", repo))
 			logger.V("received issue event")
 
-			if evt.User == nil || evt.User.Email != m.gitEmail {
-				logger.D("issue was not created by us",
-					log.String("expect", m.gitEmail),
-					log.String("actual", evt.User.Email),
+			expectedTitle := m.getDashboardTitle(repo)
+			if expectedTitle != evt.ObjectAttributes.Title {
+				logger.D("issue event is not related to renovate dashboard issue",
+					log.String("expected", expectedTitle),
+					log.String("actual", evt.ObjectAttributes.Title),
 				)
-				return ""
 			}
 
-			logger.D("issue was created by us, checking checkbox state")
-
+			logger.D("checking issue checkbox state")
 			if util.CountCheckedItems(evt.ObjectAttributes.Description) > 0 {
-				return evt.Project.PathWithNamespace
+				return repo
 			}
 
 			return ""
 		case *gitlab.MergeEvent:
+			repo := evt.Project.PathWithNamespace
+			logger = logger.WithFields(log.String("repo", repo))
+
 			logger.V("received merge request event")
-
-			if evt.User == nil || evt.User.Email != m.gitEmail {
-				logger.D("pull request was not created by us",
-					log.String("expect", m.gitEmail),
-					log.String("actual", evt.User.Email),
-				)
-				return ""
-			}
-
-			logger.D("pull request was created by us, checking checkbox state")
-
+			logger.D("checking merge request checkbox state")
 			if util.CountCheckedItems(evt.ObjectAttributes.Description) > 0 {
-				return evt.Project.PathWithNamespace
+				return repo
 			}
 
 			return ""
 		case *gitlab.PushEvent:
+			repo := evt.Project.PathWithNamespace
+			logger = logger.WithFields(log.String("repo", repo))
+
 			logger.V("received push event")
 
 			if evt.UserEmail == m.gitEmail {
@@ -84,7 +81,7 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 			return evt.Project.PathWithNamespace
 		default:
-			logger.V("received ignored event")
+			logger.V("ignored event")
 			return ""
 		}
 	}()
@@ -93,8 +90,6 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-
-	logger = logger.WithFields(log.String("repo", repo))
 
 	logger.I("executing renovate")
 

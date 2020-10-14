@@ -39,66 +39,82 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	repo := func() string {
 		switch evt := ev.(type) {
 		case *github.IssuesEvent:
+			repo := evt.GetRepo().GetFullName()
+			logger = logger.WithFields(log.String("repo", repo))
 			logger.V("received issue event")
-			if evt.Action == nil || *evt.Action != "edited" {
+
+			expectedTitle := m.getDashboardTitle(repo)
+			if actualTitle := evt.GetIssue().GetTitle(); expectedTitle != actualTitle {
+				logger.D("issue event is not related to renovate dashboard issue",
+					log.String("expected", expectedTitle),
+					log.String("actual", actualTitle),
+				)
 				return ""
 			}
 
-			logger.V("event is issue edited")
+			if evt.Action == nil {
+				return repo
+			}
+
+			switch *evt.Action {
+			case "edited":
+				logger.V("event is issue edited")
+			case "deleted", "transferred", "closed", "reopened":
+				// dashboard issue state changed, ensure open
+				return repo
+			default:
+				return ""
+			}
 
 			if evt.Changes == nil || evt.Changes.Body == nil || evt.Changes.Body.From == nil {
 				logger.V("issue body not changed")
 				return ""
 			}
 
-			logger.V("issue body changed")
-
-			if email := evt.GetIssue().GetUser().GetEmail(); email != m.gitEmail {
-				logger.D("issue was not created by us",
-					log.String("expect", m.gitEmail),
-					log.String("actual", email),
-				)
-				return ""
-			}
-
-			logger.D("issue was created by us, checking checkbox state")
-
+			logger.D("issue body changed, checking issue checkbox state")
 			oldBody := *evt.Changes.Body.From
 			if util.ItemChecked(oldBody, evt.GetIssue().GetBody()) {
-				return evt.GetRepo().GetFullName()
+				return repo
 			}
 			return ""
 		case *github.PullRequestEvent:
+			repo := evt.GetRepo().GetFullName()
+			logger = logger.WithFields(log.String("repo", repo))
+
 			logger.V("received pull request event")
-			if evt.Action == nil || *evt.Action != "edited" {
+			if evt.Action == nil {
+				return repo
+			}
+
+			switch *evt.Action {
+			case "edited":
+				logger.V("event is pull request edited")
+			case "closed", "reopened":
+				return repo
+			default:
 				return ""
 			}
 
-			logger.V("event is pull request edited")
-
 			if evt.Changes == nil || evt.Changes.Body == nil || evt.Changes.Body.From == nil {
-				logger.V("pull request   unchanged")
+				logger.V("pull request body unchanged")
 				return ""
 			}
 
 			logger.V("pull request body changed")
 
-			if evt.GetPullRequest().GetUser().GetEmail() != m.gitEmail {
-				return ""
-			}
-
-			logger.D("pull request was created by us, checking checkbox state")
-
 			oldBody := *evt.Changes.Body.From
 			if util.ItemChecked(oldBody, evt.GetPullRequest().GetBody()) {
-				return evt.GetRepo().GetFullName()
+				return repo
 			}
 			return ""
 		case *github.PushEvent:
+			repo := evt.GetRepo().GetFullName()
+			logger = logger.WithFields(log.String("repo", repo))
 			logger.V("received push event")
-			return evt.GetRepo().GetFullName()
+
+			return repo
 		default:
-			logger.V("received ignored event")
+			logger.V("ignored event")
 			return ""
 		}
 	}()
@@ -108,14 +124,12 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	logger = logger.WithFields(log.String("repo", repo))
-
 	logger.I("executing renovate")
 
 	// run renovate against this repo
 	err = m.executor.Execute(types.ExecutionArgs{
 		Platform: "github",
-		APIURL:   m.apiURLPrefix,
+		APIURL:   m.apiURL,
 		APIToken: m.apiToken,
 		Repo:     repo,
 		GitUser:  m.gitUser,
