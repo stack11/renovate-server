@@ -44,7 +44,10 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			logger.V("received issue event")
 
 			expectedTitle := m.getDashboardTitle(repo)
-			if actualTitle := evt.GetIssue().GetTitle(); expectedTitle != actualTitle {
+			if expectedTitle == "" {
+				// no dashboard issue title provided, we may assume any issue with any title can trigger
+				// if they have checkbox (todo list)
+			} else if actualTitle := evt.GetIssue().GetTitle(); expectedTitle != actualTitle {
 				logger.D("issue event is not related to renovate dashboard issue",
 					log.String("expected", expectedTitle),
 					log.String("actual", actualTitle),
@@ -53,6 +56,7 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			}
 
 			if evt.Action == nil {
+				// unknown action, just trigger the execution
 				return repo
 			}
 

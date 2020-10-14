@@ -45,11 +45,16 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			logger.V("received issue event")
 
 			expectedTitle := m.getDashboardTitle(repo)
-			if expectedTitle != evt.ObjectAttributes.Title {
+
+			if expectedTitle == "" {
+				// no dashboard issue title provided, we may assume any issue with any title can trigger
+				// if they have checkbox (todo list)
+			} else if expectedTitle != evt.ObjectAttributes.Title {
 				logger.D("issue event is not related to renovate dashboard issue",
 					log.String("expected", expectedTitle),
 					log.String("actual", evt.ObjectAttributes.Title),
 				)
+				return ""
 			}
 
 			logger.D("checking issue checkbox state")
