@@ -135,6 +135,10 @@ func (k *KubernetesExecutor) Execute(args types.ExecutionArgs) error {
 								Value: "json",
 							},
 							{
+								Name:  "LOG_CONTEXT",
+								Value: "renovate-server:kubernetes-executor",
+							},
+							{
 								Name:  "RENOVATE_PLATFORM",
 								Value: strings.ToLower(args.Platform),
 							},
