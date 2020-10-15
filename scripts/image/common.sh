@@ -30,7 +30,9 @@ elif [ "${GIT_BRANCH}" = "master" ]; then
   # use default manifest tag for master branch
   MANIFEST_TAG="${DEFAULT_IMAGE_MANIFEST_TAG:-latest}"
 elif [ -n "${GIT_BRANCH}" ]; then
-  MANIFEST_TAG="$(printf "%s" "${GIT_COMMIT}" | tr '/' '-')"
+  MANIFEST_TAG="$(printf "%s" "${GIT_BRANCH}" | tr '/' '-')"
+elif [ -n "${GIT_COMMIT}" ]; then
+  MANIFEST_TAG="${GIT_COMMIT}"
 fi
 
 _get_docker_manifest_arch() {
