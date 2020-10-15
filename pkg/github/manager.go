@@ -107,7 +107,17 @@ func (m *Manager) getDashboardTitle(repo string) string {
 }
 
 func (m *Manager) ListRepos() ([]string, error) {
-	repos, _, err := m.client.Repositories.ListAll(m.ctx, &github.RepositoryListAllOptions{})
+	repos, _, err := m.client.Repositories.List(m.ctx, "", &github.RepositoryListOptions{
+		Visibility:  "",
+		Affiliation: "",
+		Type:        "",
+		Sort:        "",
+		Direction:   "",
+		ListOptions: github.ListOptions{
+			Page:    0,
+			PerPage: 0,
+		},
+	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list all repos: %w", err)
 	}
