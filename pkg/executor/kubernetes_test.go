@@ -9,7 +9,7 @@ import (
 
 func TestFormatNamePrefix(t *testing.T) {
 	const maxRepoNameLen = 10
-	prefix := strings.Repeat("p", 253-11-maxRepoNameLen-1) + "-"
+	prefix := strings.Repeat("p", 253-11-1-maxRepoNameLen-1) + "-"
 
 	tests := []struct {
 		name     string
@@ -19,27 +19,27 @@ func TestFormatNamePrefix(t *testing.T) {
 		{
 			name:     "Normal Repo Name",
 			repo:     strings.Repeat("r", maxRepoNameLen-4) + "/foo",
-			expected: prefix + strings.Repeat("r", maxRepoNameLen-4) + "-foo",
+			expected: prefix + strings.Repeat("r", maxRepoNameLen-4) + "-foo-",
 		},
 		{
 			name:     "Normal Multi-Org Repo Name",
 			repo:     strings.Repeat("/r", maxRepoNameLen/2),
-			expected: prefix + strings.Repeat("-r", maxRepoNameLen/2),
+			expected: prefix + strings.Repeat("-r", maxRepoNameLen/2) + "-",
 		},
 		{
 			name:     "Long Repo Name with Normal Name",
 			repo:     strings.Repeat("r", maxRepoNameLen*2) + "/" + strings.Repeat("r", maxRepoNameLen),
-			expected: prefix + strings.Repeat("r", maxRepoNameLen),
+			expected: prefix + strings.Repeat("r", maxRepoNameLen) + "-",
 		},
 		{
 			name:     "Long Repo Name with Long Name",
 			repo:     strings.Repeat("r", maxRepoNameLen*2) + "/" + strings.Repeat("r", maxRepoNameLen*2),
-			expected: prefix + strings.Repeat("r", maxRepoNameLen),
+			expected: prefix + strings.Repeat("r", maxRepoNameLen) + "-",
 		},
 		{
 			name:     "Long Multi-Org Repo Name",
 			repo:     strings.Repeat("r/", maxRepoNameLen*2),
-			expected: prefix + strings.Repeat("r-", maxRepoNameLen/2),
+			expected: prefix + strings.Repeat("r-", maxRepoNameLen/2) + "-",
 		},
 	}
 
