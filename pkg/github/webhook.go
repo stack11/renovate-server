@@ -6,7 +6,6 @@ import (
 	"arhat.dev/pkg/log"
 	"github.com/google/go-github/v32/github"
 
-	"arhat.dev/renovate-server/pkg/types"
 	"arhat.dev/renovate-server/pkg/util"
 )
 
@@ -128,17 +127,16 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if _, disabled := m.disabledRepos[repo]; disabled {
+		logger.I("execution ignored")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	logger.I("scheduling renovate execution")
 
 	// run renovate against this repo
-	err = m.scheduler.Schedule(types.ExecutionArgs{
-		Platform: "github",
-		APIURL:   m.apiURL,
-		APIToken: m.apiToken,
-		Repo:     repo,
-		GitUser:  m.gitUser,
-		GitEmail: m.gitEmail,
-	})
+	err = m.scheduler.Schedule(m.ExecutionArgs(repo))
 	if err != nil {
 		logger.I("failed to schedule renovate execution", log.Error(err))
 		http.Error(w, "failed to execute renovate", http.StatusInternalServerError)

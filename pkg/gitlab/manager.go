@@ -42,8 +42,12 @@ func NewManager(
 	}
 
 	dashboardTitles := make(map[string]string)
+	disabledRepos := make(map[string]struct{})
 	for _, p := range config.Projects {
 		dashboardTitles[p.Name] = p.DashboardIssueTitle
+		if p.Disabled {
+			disabledRepos[p.Name] = struct{}{}
+		}
 	}
 
 	return &Manager{
@@ -58,6 +62,7 @@ func NewManager(
 
 		defaultDashboardTitle: config.DashboardIssueTitle,
 		dashboardTitles:       dashboardTitles,
+		disabledRepos:         disabledRepos,
 
 		apiURL:   baseURL,
 		apiToken: config.API.OAuthToken,
@@ -75,6 +80,7 @@ type Manager struct {
 
 	defaultDashboardTitle string
 	dashboardTitles       map[string]string
+	disabledRepos         map[string]struct{}
 
 	apiURL   string
 	apiToken string
@@ -84,4 +90,40 @@ type Manager struct {
 
 func (m *Manager) getDashboardTitle(repo string) string {
 	return util.GetOrDefault(m.dashboardTitles, repo, m.defaultDashboardTitle)
+}
+
+func (m *Manager) ListRepos() ([]string, error) {
+	falseP := false
+	trueP := true
+
+	repos, _, err := m.client.Projects.ListProjects(&gitlab.ListProjectsOptions{
+		Archived: &falseP,
+		Simple:   &trueP,
+	}, gitlab.WithContext(m.ctx))
+	if err != nil {
+		return nil, fmt.Errorf("failed to list all repos: %w", err)
+	}
+
+	var ret []string
+	for _, repo := range repos {
+		name := repo.PathWithNamespace
+		if _, disabled := m.disabledRepos[name]; disabled {
+			continue
+		}
+
+		ret = append(ret, name)
+	}
+
+	return ret, nil
+}
+
+func (m *Manager) ExecutionArgs(repos ...string) types.ExecutionArgs {
+	return types.ExecutionArgs{
+		Platform: "gitlab",
+		APIURL:   m.apiURL,
+		APIToken: m.apiToken,
+		Repos:    repos,
+		GitUser:  m.gitUser,
+		GitEmail: m.gitEmail,
+	}
 }

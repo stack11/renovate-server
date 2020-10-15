@@ -17,6 +17,8 @@ limitations under the License.
 package conf
 
 import (
+	"time"
+
 	"arhat.dev/pkg/confhelper"
 	"arhat.dev/pkg/log"
 	"github.com/spf13/pflag"
@@ -39,15 +41,29 @@ type ServerConfig struct {
 		TLS    confhelper.TLSConfig `json:"tls" yaml:"tls"`
 	} `json:"webhook" yaml:"webhook"`
 
+	Scheduling struct {
+		// Delay period for webhook event
+		Delay time.Duration `json:"delay" yaml:"delay"`
+
+		// Cron is the crontab string to schedule renovate periodically
+		Cron string `json:"cron" yaml:"cron"`
+		// Timezone
+		Timezone string `json:"timezone" yaml:"timezone"`
+	} `json:"scheduling" yaml:"scheduling"`
+
 	Executor struct {
 		Kubernetes *KubernetesExecutorConfig `json:"kubernetes" yaml:"kubernetes"`
 	} `json:"executor" yaml:"executor"`
 }
 
 type KubernetesExecutorConfig struct {
-	KubeClient              confhelper.KubeClientConfig `json:"kubeClient" yaml:"kubeClient"`
-	RenovateImage           string                      `json:"renovateImage" yaml:"renovateImage"`
-	RenovateImagePullPolicy string                      `json:"renovateImagePullPolicy" yaml:"renovateImagePullPolicy"`
+	KubeClient confhelper.KubeClientConfig `json:"kubeClient" yaml:"kubeClient"`
+
+	// JobTTL delete after specified time period
+	JobTTL time.Duration `json:"jobTTL" yaml:"jobTTL"`
+
+	RenovateImage           string `json:"renovateImage" yaml:"renovateImage"`
+	RenovateImagePullPolicy string `json:"renovateImagePullPolicy" yaml:"renovateImagePullPolicy"`
 }
 
 func FlagsForServer(prefix string, config *ServerConfig) *pflag.FlagSet {
@@ -57,6 +73,9 @@ func FlagsForServer(prefix string, config *ServerConfig) *pflag.FlagSet {
 		constant.DefaultWebhookListenAddress, "set webhook listener address",
 	)
 	fs.AddFlagSet(confhelper.FlagsForTLSConfig(prefix+"webhook.tls", &config.Webhook.TLS))
+	fs.DurationVar(&config.Scheduling.Delay, prefix+"scheduling.delay",
+		constant.DefaultSchedulingDelay, "set delay time before actually invoke executor",
+	)
 
 	return fs
 }

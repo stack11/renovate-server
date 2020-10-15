@@ -7,7 +7,6 @@ import (
 	"arhat.dev/pkg/log"
 	"github.com/xanzy/go-gitlab"
 
-	"arhat.dev/renovate-server/pkg/types"
 	"arhat.dev/renovate-server/pkg/util"
 )
 
@@ -96,16 +95,15 @@ func (m *Manager) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if _, disabled := m.disabledRepos[repo]; disabled {
+		logger.I("execution ignored")
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	logger.I("scheduling renovate execution")
 
-	err = m.scheduler.Schedule(types.ExecutionArgs{
-		Platform: "gitlab",
-		APIURL:   m.apiURL,
-		APIToken: m.apiToken,
-		Repo:     repo,
-		GitUser:  m.gitUser,
-		GitEmail: m.gitEmail,
-	})
+	err = m.scheduler.Schedule(m.ExecutionArgs(repo))
 
 	if err != nil {
 		logger.I("failed to schedule renovate execution", log.Error(err))

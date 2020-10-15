@@ -4,7 +4,7 @@ type ExecutionArgs struct {
 	Platform string
 	APIURL   string
 	APIToken string
-	Repo     string
+	Repos    []string
 	GitUser  string
 	GitEmail string
 }

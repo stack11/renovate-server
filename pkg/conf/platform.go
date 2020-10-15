@@ -112,4 +112,7 @@ type ProjectConfig struct {
 	Name string `json:"name" yaml:"name"`
 	// override default dashboard issue title
 	DashboardIssueTitle string `json:"dashboardIssueTitle" yaml:"dashboardIssueTitle"`
+
+	// Disabled indicates whether this project should not be checked by renovate
+	Disabled bool `json:"disabled" yaml:"disabled"`
 }

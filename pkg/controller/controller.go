@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"sync"
 	"time"
 
 	"arhat.dev/pkg/log"
 	"arhat.dev/pkg/queue"
+	"github.com/robfig/cron/v3"
 
 	"arhat.dev/renovate-server/pkg/conf"
 	"arhat.dev/renovate-server/pkg/executor"
@@ -39,6 +41,27 @@ func NewController(ctx context.Context, config *conf.Config) (*Controller, error
 		return nil, fmt.Errorf("failed to create tls config for webhook server: %w", err)
 	}
 
+	var cronJob *cron.Cron
+	if config.Server.Scheduling.Cron != "" {
+		location := time.UTC
+		if config.Server.Scheduling.Timezone != "" {
+			location, err = time.LoadLocation(config.Server.Scheduling.Timezone)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse timezone: %w", err)
+			}
+		}
+
+		cronJob = cron.New(
+			cron.WithLocation(location),
+			cron.WithChain(cron.SkipIfStillRunning(cron.DiscardLogger)),
+			cron.WithParser(
+				cron.NewParser(
+					cron.SecondOptional|cron.Minute|cron.Hour|cron.Dom|cron.Month|cron.Dow|cron.Descriptor,
+				),
+			),
+		)
+	}
+
 	ctrl := &Controller{
 		ctx: ctx,
 
@@ -47,8 +70,12 @@ func NewController(ctx context.Context, config *conf.Config) (*Controller, error
 		managers:   make(map[string]types.PlatformManager),
 		tlsConfig:  tlsConfig,
 
+		delay:    config.Server.Scheduling.Delay,
 		executor: exec,
 		tq:       queue.NewTimeoutQueue(),
+
+		cronTab: config.Server.Scheduling.Cron,
+		cronJob: cronJob,
 	}
 
 	for i, gh := range config.GitHub {
@@ -78,8 +105,12 @@ type Controller struct {
 	managers   map[string]types.PlatformManager
 	tlsConfig  *tls.Config
 
+	delay    time.Duration
 	executor types.Executor
 	tq       *queue.TimeoutQueue
+
+	cronTab string
+	cronJob *cron.Cron
 }
 
 func (c *Controller) Start() error {
@@ -106,16 +137,15 @@ func (c *Controller) Start() error {
 	}
 
 	c.tq.Start(c.ctx.Done())
-
 	go func() {
 		ch := c.tq.TakeCh()
 		for d := range ch {
-			args := d.Key.(types.ExecutionArgs)
+			args := d.Data.(types.ExecutionArgs)
 			c.logger.I("executing renovate")
 			err2 := c.executor.Execute(args)
 			if err2 != nil {
 				c.logger.I("failed to execute renovate for repo, rescheduling",
-					log.String("repo", args.Repo),
+					log.Strings("repos", args.Repos),
 					log.String("endpoint", args.APIURL),
 					log.Error(err),
 				)
@@ -144,11 +174,81 @@ func (c *Controller) Start() error {
 		}
 	}()
 
+	if c.cronJob != nil {
+		_, err = c.cronJob.AddFunc(c.cronTab, func() {
+			c.logger.I("working on cron job")
+
+			c.CheckAllRepos()
+
+			c.logger.I("cron job finished")
+		})
+		if err != nil {
+			return err
+		}
+
+		c.cronJob.Start()
+	}
+
 	return nil
 }
 
-func (c *Controller) Schedule(args types.ExecutionArgs) error {
-	c.tq.Remove(args)
+func (c *Controller) CheckAllRepos() {
+	wg := new(sync.WaitGroup)
+	for k := range c.managers {
+		wg.Add(1)
 
-	return c.tq.OfferWithDelay(args, args, 5*time.Second)
+		go func(key string) {
+			defer wg.Done()
+
+			logger := c.logger.WithFields(
+				log.String("job", "cron"),
+				log.String("endpoint", key),
+			)
+			mgr := c.managers[key]
+			repos, err2 := mgr.ListRepos()
+			if err2 != nil {
+				logger.I("failed to list repos", log.Error(err2))
+				return
+			}
+
+			args := mgr.ExecutionArgs(repos...)
+			err2 = c.executor.Execute(args)
+			if err2 != nil {
+				logger.I("failed to execute all repos check job, schedule as normal job", log.Error(err2))
+				err2 = c.Schedule(args)
+				if err2 != nil {
+					logger.I("failed to schedule all repos check job as normal job", log.Error(err2))
+				}
+				return
+			}
+		}(k)
+	}
+
+	wg.Wait()
+}
+
+func (c *Controller) Schedule(args types.ExecutionArgs) error {
+	key := args.APIURL + args.APIToken
+	repos := args.Repos
+
+	oldArgs, removed := c.tq.Remove(key)
+	if removed {
+		oldRepos := oldArgs.(types.ExecutionArgs).Repos
+
+		for _, oldR := range oldRepos {
+			found := false
+			for _, r := range args.Repos {
+				if oldR == r {
+					found = true
+				}
+			}
+
+			if !found {
+				repos = append(repos, oldR)
+			}
+		}
+	}
+
+	args.Repos = repos
+	return c.tq.OfferWithDelay(key, args, c.delay)
 }

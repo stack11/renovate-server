@@ -16,15 +16,17 @@ limitations under the License.
 
 package constant
 
+import "time"
+
 const (
 	DefaultRenovateServerConfigFile = "/etc/renovate-server/config.yaml"
 	DefaultWebhookListenAddress     = ":8080"
+	DefaultSchedulingDelay          = 60 * time.Second
 )
 
 // GitHub Defaults
 const (
-	DefaultGitHubAPIBaseURL   = "https://api.github.com/"
-	DefaultGitHubAPIUploadURL = "https://uploads.github.com/"
+	DefaultGitHubAPIBaseURL = "https://api.github.com/"
 )
 
 // GitLab Defaults
@@ -33,7 +35,6 @@ const (
 )
 
 // Renovate config
-
 const (
 	DefaultRenovateImage           = "docker.io/renovate/renovate:latest"
 	DefaultRenovateImagePullPolicy = "Always"

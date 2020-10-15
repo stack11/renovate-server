@@ -20,13 +20,12 @@ import (
 	"context"
 	"fmt"
 
-	"arhat.dev/renovate-server/pkg/controller"
-
 	"arhat.dev/pkg/log"
 	"github.com/spf13/cobra"
 
 	"arhat.dev/renovate-server/pkg/conf"
 	"arhat.dev/renovate-server/pkg/constant"
+	"arhat.dev/renovate-server/pkg/controller"
 )
 
 func NewRenovateServerCmd() *cobra.Command {
@@ -85,6 +84,12 @@ func run(appCtx context.Context, config *conf.Config) error {
 	}
 
 	logger.I("controller running")
+
+	logger.I("working on initial all repos check")
+
+	ctrl.CheckAllRepos()
+
+	logger.I("all repos check finished")
 
 	// nolint:gosimple
 	select {
