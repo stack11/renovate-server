@@ -4,7 +4,7 @@ image:
   repository: docker.io/arhatdev/renovate-server
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: v0.1.1
+  tag: v0.1.2
 
 imagePullSecrets: []
 nameOverride: ""
@@ -85,7 +85,9 @@ config:
       #     <PEM ENCODED CERTIFICATE KEY>
     scheduling:
       delay: 1m
-      cron: 0 3 * * 6
+      cronTabs:
+      - 0 */1 * * 6
+      - 0 */1 * * 7
       timezone: Asia/Hong_Kong
     executor:
       kubernetes:

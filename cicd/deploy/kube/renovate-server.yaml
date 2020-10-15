@@ -5,10 +5,10 @@ kind: ServiceAccount
 metadata:
   name: renovate-server
   labels:
-    helm.sh/chart: renovate-server-0.1.1
+    helm.sh/chart: renovate-server-0.1.2
     app.kubernetes.io/name: renovate-server
     app.kubernetes.io/instance: renovate-server
-    app.kubernetes.io/version: "v0.1.1"
+    app.kubernetes.io/version: "v0.1.2"
     app.kubernetes.io/managed-by: Helm
 ---
 # Source: renovate-server/templates/secret.yaml
@@ -17,14 +17,14 @@ kind: Secret
 metadata:
   name: renovate-server
   labels:
-    helm.sh/chart: renovate-server-0.1.1
+    helm.sh/chart: renovate-server-0.1.2
     app.kubernetes.io/name: renovate-server
     app.kubernetes.io/instance: renovate-server
-    app.kubernetes.io/version: "v0.1.1"
+    app.kubernetes.io/version: "v0.1.2"
     app.kubernetes.io/managed-by: Helm
 type: Opaque
 data:
-  config.yaml: Z2l0aHViOiBbXQpnaXRsYWI6IFtdCnNlcnZlcjoKICBleGVjdXRvcjoKICAgIGt1YmVybmV0ZXM6CiAgICAgIGpvYlRUTDogNzJoCiAgICAgIGt1YmVDbGllbnQ6CiAgICAgICAgZmFrZTogZmFsc2UKICAgICAgICByYXRlTGltaXQ6CiAgICAgICAgICBidXJzdDogMTAKICAgICAgICAgIGVuYWJsZWQ6IGZhbHNlCiAgICAgICAgICBxcHM6IDUKICAgICAgcmVub3ZhdGVJbWFnZTogZG9ja2VyLmlvL3Jlbm92YXRlL3Jlbm92YXRlOmxhdGVzdAogICAgICByZW5vdmF0ZUltYWdlUHVsbFBvbGljeTogQWx3YXlzCiAgbG9nOgogIC0gZmlsZTogc3RkZXJyCiAgICBmb3JtYXQ6IGNvbnNvbGUKICAgIGxldmVsOiB2ZXJib3NlCiAgc2NoZWR1bGluZzoKICAgIGNyb246IDAgMyAqICogNgogICAgZGVsYXk6IDFtCiAgICB0aW1lem9uZTogQXNpYS9Ib25nX0tvbmcKICB3ZWJob29rOgogICAgbGlzdGVuOiA6ODA4MA==
+  config.yaml: Z2l0aHViOiBbXQpnaXRsYWI6IFtdCnNlcnZlcjoKICBleGVjdXRvcjoKICAgIGt1YmVybmV0ZXM6CiAgICAgIGpvYlRUTDogNzJoCiAgICAgIGt1YmVDbGllbnQ6CiAgICAgICAgZmFrZTogZmFsc2UKICAgICAgICByYXRlTGltaXQ6CiAgICAgICAgICBidXJzdDogMTAKICAgICAgICAgIGVuYWJsZWQ6IGZhbHNlCiAgICAgICAgICBxcHM6IDUKICAgICAgcmVub3ZhdGVJbWFnZTogZG9ja2VyLmlvL3Jlbm92YXRlL3Jlbm92YXRlOmxhdGVzdAogICAgICByZW5vdmF0ZUltYWdlUHVsbFBvbGljeTogQWx3YXlzCiAgbG9nOgogIC0gZmlsZTogc3RkZXJyCiAgICBmb3JtYXQ6IGNvbnNvbGUKICAgIGxldmVsOiB2ZXJib3NlCiAgc2NoZWR1bGluZzoKICAgIGNyb25UYWJzOgogICAgLSAwICovMSAqICogNgogICAgLSAwICovMSAqICogNwogICAgZGVsYXk6IDFtCiAgICB0aW1lem9uZTogQXNpYS9Ib25nX0tvbmcKICB3ZWJob29rOgogICAgbGlzdGVuOiA6ODA4MA==
 ---
 # Source: renovate-server/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -64,10 +64,10 @@ kind: Service
 metadata:
   name: renovate-server
   labels:
-    helm.sh/chart: renovate-server-0.1.1
+    helm.sh/chart: renovate-server-0.1.2
     app.kubernetes.io/name: renovate-server
     app.kubernetes.io/instance: renovate-server
-    app.kubernetes.io/version: "v0.1.1"
+    app.kubernetes.io/version: "v0.1.2"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -86,10 +86,10 @@ kind: Deployment
 metadata:
   name: renovate-server
   labels:
-    helm.sh/chart: renovate-server-0.1.1
+    helm.sh/chart: renovate-server-0.1.2
     app.kubernetes.io/name: renovate-server
     app.kubernetes.io/instance: renovate-server
-    app.kubernetes.io/version: "v0.1.1"
+    app.kubernetes.io/version: "v0.1.2"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -114,7 +114,7 @@ spec:
         - name: renovate-server
           securityContext:
             {}
-          image: "docker.io/arhatdev/renovate-server:v0.1.1"
+          image: "docker.io/arhatdev/renovate-server:v0.1.2"
           imagePullPolicy: Always
           command:
             - /renovate-server
