@@ -85,7 +85,7 @@ config:
       #     <PEM ENCODED CERTIFICATE KEY>
     scheduling:
       delay: 1m
-      cron: "0 3 * * 6"
+      cron: 0 3 * * 6
       timezone: Asia/Hong_Kong
     executor:
       kubernetes:
