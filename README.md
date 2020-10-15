@@ -10,10 +10,12 @@ Self-Hosted renovate server to automate renovate actions
 
 ## Support Matrix
 
-- Webhook Events
-  - `issue` with dashboard title: edited/closed/reopened
-  - `pull/merge request` with checkbox edited/closed/reopened
-  - `push`
+- Job Types
+  - Cron Job
+  - Webhook Events
+    - `issue` with dashboard title: edited/closed/reopened
+    - `pull/merge request` with checkbox edited/closed/reopened
+    - `push`
 - Platforms
   - `gitlab`
   - `github`
