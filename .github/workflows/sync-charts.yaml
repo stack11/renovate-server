@@ -29,12 +29,11 @@ jobs:
 
     - name: Update charts
       run: |
-        for chart in "renovate-server/cicd/deploy/charts/"*; do
+        for chart in renovate-server/cicd/deploy/charts/*; do
           chart="${chart#renovate-server/cicd/deploy/charts/}"
           echo "Updating chart ${chart}..."
           rm -rf "helm-charts/charts/${chart}"
-          mv "renovate-server/cicd/deploy/charts/${chart}" \
-            "helm-charts/charts/${chart}"
+          mv "renovate-server/cicd/deploy/charts/${chart}" "helm-charts/charts/${chart}"
           echo "Chart ${chart} updated"
         done
 

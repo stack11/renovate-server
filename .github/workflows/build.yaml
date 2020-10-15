@@ -56,9 +56,9 @@ jobs:
         make -j$(nproc --all) renovate-server.aix.ppc64 TAGS=''
         make -j$(nproc --all) renovate-server.dragonfly.amd64 TAGS=''
 
-    - name: Package
-      run: |
-        make package.renovate-server.linux.all
+    # - name: Package
+    #   run: |
+    #     make package.renovate-server.linux.all
 
     - name: Hash
       run: |
@@ -709,79 +709,89 @@ jobs:
         asset_path: build/renovate-server.solaris.amd64
         asset_content_type: application/octet-stream
 
+    - name: Upload renovate-server.aix.ppc64
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_name: renovate-server.aix.ppc64
+        asset_path: build/renovate-server.aix.ppc64
+        asset_content_type: application/octet-stream
+
     #
     # packages
     #
 
-    - name: Upload renovate-server-amd64.deb
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.amd64.deb
-        asset_path: build/renovate-server.amd64.deb
-        asset_content_type: application/vnd.debian.binary-package
+    # - name: Upload renovate-server-amd64.deb
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_name: renovate-server.amd64.deb
+    #     asset_path: build/renovate-server.amd64.deb
+    #     asset_content_type: application/vnd.debian.binary-package
 
-    - name: Upload renovate-server-x86_64.rpm
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.x86_64.rpm
-        asset_path: build/renovate-server.x86_64.rpm
-        asset_content_type: application/x-rpm
+    # - name: Upload renovate-server-x86_64.rpm
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_name: renovate-server.x86_64.rpm
+    #     asset_path: build/renovate-server.x86_64.rpm
+    #     asset_content_type: application/x-rpm
 
-    - name: Upload renovate-server-armel.deb
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.armel.deb
-        asset_path: build/renovate-server.armel.deb
-        asset_content_type: application/vnd.debian.binary-package
+    # - name: Upload renovate-server-armel.deb
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_name: renovate-server.armel.deb
+    #     asset_path: build/renovate-server.armel.deb
+    #     asset_content_type: application/vnd.debian.binary-package
 
-    - name: Upload renovate-server-armhf.deb
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.armhf.deb
-        asset_path: build/renovate-server.armhf.deb
-        asset_content_type: application/vnd.debian.binary-package
+    # - name: Upload renovate-server-armhf.deb
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_name: renovate-server.armhf.deb
+    #     asset_path: build/renovate-server.armhf.deb
+    #     asset_content_type: application/vnd.debian.binary-package
 
-    - name: Upload renovate-server-armhfp.rpm
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.armhfp.rpm
-        asset_path: build/renovate-server.armhfp.rpm
-        asset_content_type: application/x-rpm
+    # - name: Upload renovate-server-armhfp.rpm
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_name: renovate-server.armhfp.rpm
+    #     asset_path: build/renovate-server.armhfp.rpm
+    #     asset_content_type: application/x-rpm
 
-    - name: Upload renovate-server-arm64.deb
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.arm64.deb
-        asset_path: build/renovate-server.arm64.deb
-        asset_content_type: application/vnd.debian.binary-package
+    # - name: Upload renovate-server-arm64.deb
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_name: renovate-server.arm64.deb
+    #     asset_path: build/renovate-server.arm64.deb
+    #     asset_content_type: application/vnd.debian.binary-package
 
-    - name: Upload renovate-server-aarch64.rpm
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.aarch64.rpm
-        asset_path: build/renovate-server.aarch64.rpm
-        asset_content_type: application/x-rpm
+    # - name: Upload renovate-server-aarch64.rpm
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_name: renovate-server.aarch64.rpm
+    #     asset_path: build/renovate-server.aarch64.rpm
+    #     asset_content_type: application/x-rpm
 
     # - name: Upload renovate-server-arm64.msi
     #   uses: actions/upload-release-asset@v1

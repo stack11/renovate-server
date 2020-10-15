@@ -121,8 +121,11 @@ renovate-server.windows.armv7:
 # 	sh scripts/build/build.sh $@
 
 renovate-server.windows.all: \
+	renovate-server.windows.amd64 \
+	renovate-server.windows.armv7 \
 	renovate-server.windows.x86 \
-	renovate-server.windows.amd64
+	renovate-server.windows.armv5 \
+	renovate-server.windows.armv6
 
 # # android build requires android sdk
 # renovate-server.android.amd64:
