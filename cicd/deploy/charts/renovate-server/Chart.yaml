@@ -1,6 +1,6 @@
 apiVersion: v2
 name: renovate-server
-description: Helm chart for renovate-server
+description: Self-hosted renovate for your webhooks
 type: application
 version: 0.1.0
 appVersion: latest

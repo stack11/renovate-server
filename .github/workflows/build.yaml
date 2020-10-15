@@ -7,10 +7,18 @@ on:
     - rerequested
     - requested_action
   pull_request:
+    paths-ignore:
+    - docs/**
+    - cicd/deploy/**
+    - README.md
     branches:
     - master
     - "!deps/**"
   push:
+    paths-ignore:
+    - docs/**
+    - cicd/deploy/**
+    - README.md
     branches:
     - master
     tags:
