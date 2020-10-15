@@ -2,5 +2,21 @@ apiVersion: v2
 name: renovate-server
 description: Self-hosted renovate for your webhooks
 type: application
-version: 0.1.0
+maintainers:
+- name: arhat-dev
+  email: dev@arhat.dev
+keywords:
+- webhook
+- renovate
+- controller
+- job
+- cron
+- github
+- gitlab
+# icon:
+home: https://github.com/arhat-dev/renovate-server
+sources:
+- https://github.com/arhat-dev/renovate-server
+- https://github.com/arhat-dev/helm-charts
+version: 0.1.1
 appVersion: latest
