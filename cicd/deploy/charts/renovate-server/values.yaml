@@ -83,8 +83,13 @@ config:
       #     <PEM ENCODED CERTIFICATE>
       #   keyData: |
       #     <PEM ENCODED CERTIFICATE KEY>
+    scheduling:
+      delay: 1m
+      cron: "0 3 * * 6"
+      timezone: Asia/Hong_Kong
     executor:
       kubernetes:
+        jobTTL: 72h
         kubeClient:
           fake: false
           # kubeconfig:
@@ -126,6 +131,7 @@ config:
   #   # projects:
   #   # - name: foo/bar
   #   #   dashboardIssueTitle: Available foo upgrades
+  #   #   disabled: true
 
   gitlab: []
   # - api:
@@ -153,3 +159,4 @@ config:
   #   # projects:
   #   # - name: foo/bar
   #   #   dashboardIssueTitle: Available foo upgrades
+  #   #   disabled: true
