@@ -4,7 +4,7 @@ image:
   repository: docker.io/arhatdev/renovate-server
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: latest
 
 imagePullSecrets: []
 nameOverride: ""
