@@ -20,6 +20,7 @@ jobs:
       with:
         repository: arhat-dev/helm-charts
         path: helm-charts
+        ssh-key: ${{ secrets.ORG_SSH_KEY }}
 
     - name: Configure git user
       run: |
@@ -28,20 +29,18 @@ jobs:
 
     - name: Update charts
       run: |
-        for chart in "${GITHUB_WORKSPACE}/renovate-server/cicd/deploy/charts/"*; do
-          chart="${chart#${GITHUB_WORKSPACE}/renovate-server/cicd/deploy/charts/}"
+        for chart in "renovate-server/cicd/deploy/charts/"*; do
+          chart="${chart#renovate-server/cicd/deploy/charts/}"
           echo "Updating chart ${chart}..."
           rm -rf "helm-charts/charts/${chart}"
-          mv "${GITHUB_WORKSPACE}/renovate-server/cicd/deploy/charts/${chart}" \
-            "${GITHUB_WORKSPACE}/helm-charts/charts/${chart}"
+          mv "renovate-server/cicd/deploy/charts/${chart}" \
+            "helm-charts/charts/${chart}"
           echo "Chart ${chart} updated"
         done
 
     - name: Push charts update
-      env:
-        ORG_REPO_TOKEN: ${{ secrets.ORG_REPO_TOKEN }}
       run: |
-        cd "${GITHUB_WORKSPACE}/helm-charts"
+        cd helm-charts
         git add --all .
         git commit -m "Update charts from renovate-server"
-        git push https://${GITHUB_ACTOR}:${ORG_REPO_TOKEN}@github.com/arhat-dev/helm-charts.git HEAD:master
+        git push
