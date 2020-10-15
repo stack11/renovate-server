@@ -45,8 +45,8 @@ type ServerConfig struct {
 		// Delay period for webhook event
 		Delay time.Duration `json:"delay" yaml:"delay"`
 
-		// Cron is the crontab string to schedule renovate periodically
-		Cron string `json:"cron" yaml:"cron"`
+		// CronTabs is the crontab string array to schedule renovate periodically
+		CronTabs []string `json:"cronTabs" yaml:"cronTabs"`
 		// Timezone
 		Timezone string `json:"timezone" yaml:"timezone"`
 	} `json:"scheduling" yaml:"scheduling"`

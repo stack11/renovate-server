@@ -42,7 +42,7 @@ func NewController(ctx context.Context, config *conf.Config) (*Controller, error
 	}
 
 	var cronJob *cron.Cron
-	if config.Server.Scheduling.Cron != "" {
+	if len(config.Server.Scheduling.CronTabs) != 0 {
 		location := time.UTC
 		if config.Server.Scheduling.Timezone != "" {
 			location, err = time.LoadLocation(config.Server.Scheduling.Timezone)
@@ -74,8 +74,8 @@ func NewController(ctx context.Context, config *conf.Config) (*Controller, error
 		executor: exec,
 		tq:       queue.NewTimeoutQueue(),
 
-		cronTab: config.Server.Scheduling.Cron,
-		cronJob: cronJob,
+		cronTabs: config.Server.Scheduling.CronTabs,
+		cronJob:  cronJob,
 	}
 
 	for i, gh := range config.GitHub {
@@ -109,8 +109,8 @@ type Controller struct {
 	executor types.Executor
 	tq       *queue.TimeoutQueue
 
-	cronTab string
-	cronJob *cron.Cron
+	cronTabs []string
+	cronJob  *cron.Cron
 }
 
 func (c *Controller) Start() error {
@@ -175,15 +175,18 @@ func (c *Controller) Start() error {
 	}()
 
 	if c.cronJob != nil {
-		_, err = c.cronJob.AddFunc(c.cronTab, func() {
+		jobFunc := func() {
 			c.logger.I("working on cron job")
 
 			c.CheckAllRepos()
 
 			c.logger.I("cron job finished")
-		})
-		if err != nil {
-			return err
+		}
+		for i := range c.cronTabs {
+			_, err = c.cronJob.AddFunc(c.cronTabs[i], jobFunc)
+			if err != nil {
+				return err
+			}
 		}
 
 		c.cronJob.Start()
