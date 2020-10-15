@@ -9,7 +9,7 @@ on:
   pull_request:
     paths-ignore:
     - docs/**
-    - cicd/deploy/**
+    - cicd/deploy/charts/**
     - README.md
     branches:
     - master
@@ -17,7 +17,7 @@ on:
   push:
     paths-ignore:
     - docs/**
-    - cicd/deploy/**
+    - cicd/deploy/charts/**
     - README.md
     branches:
     - master
