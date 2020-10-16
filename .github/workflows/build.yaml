@@ -220,6 +220,11 @@ jobs:
           - `docker.io/arhatdev/renovate-server:${{ steps.extract_tag.outputs.tag }}`
           - `ghcr.io/arhat-dev/renovate-server:${{ steps.extract_tag.outputs.tag }}`
 
+          ## Helm Charts
+
+          - Have a look at [ArtifactHub](https://artifacthub.io/packages/helm/arhatdev/renovate-server)
+          - Checkout chart [source code](https://github.com/arhat-dev/renovate-server/blob/${{ steps.extract_tag.outputs.tag }}/cicd/deploy/charts/renovate-server)
+
     #
     # checksums
     #
