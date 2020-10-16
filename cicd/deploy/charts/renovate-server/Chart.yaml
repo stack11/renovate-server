@@ -13,10 +13,11 @@ keywords:
 - cron
 - github
 - gitlab
+- server
 # icon:
 home: https://github.com/arhat-dev/renovate-server
 sources:
 - https://github.com/arhat-dev/renovate-server
 - https://github.com/arhat-dev/helm-charts
-version: 0.1.2
-appVersion: v0.1.2
+version: 0.1.3
+appVersion: v0.1.3
