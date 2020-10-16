@@ -86,9 +86,11 @@ config:
     scheduling:
       delay: 1m
       cronTabs:
+      # hourly@Saturday
       - 0 */1 * * 6
-      - 0 */1 * * 7
-      timezone: Asia/Hong_Kong
+      # hourly@Sunday
+      - 0 */1 * * 0
+      timezone: ""
     executor:
       kubernetes:
         jobTTL: 72h
