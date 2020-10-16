@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"arhat.dev/pkg/log"
 	"github.com/google/go-github/v32/github"
@@ -50,6 +51,8 @@ func NewManager(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create github api client: %w", err)
 	}
+
+	ghClient.BaseURL, _ = url.Parse(baseURL)
 
 	dashboardTitles := make(map[string]string)
 	disabledRepos := make(map[string]struct{})
