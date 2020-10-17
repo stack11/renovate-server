@@ -197,6 +197,7 @@ jobs:
         release_name: ${{ github.ref }}
         draft: true
         prerelease: false
+        # yamllint disable rule:line-length
         body: |
           # Release Notes
 
