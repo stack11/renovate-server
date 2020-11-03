@@ -1,10 +1,10 @@
 replicaCount: 1
 
 image:
-  repository: docker.io/arhatdev/renovate-server
+  repository: ghcr.io/arhat-dev/renovate-server
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: v0.1.3
+  tag: v0.1.4
 
 imagePullSecrets: []
 nameOverride: ""
@@ -130,6 +130,7 @@ config:
   #     #       <PEM ENCODED CERTIFICATE KEY>
   #     #     serverName: ""
   #   dashboardIssueTitle: Available dependency upgrades
+  #   disabledRepoNameMatch: ""
   #   webhook:
   #     path: /github-com
   #     secret: <my secret for hmac>
@@ -158,6 +159,7 @@ config:
   #     #       <PEM ENCODED CERTIFICATE KEY>
   #     #     serverName: ""
   #   dashboardIssueTitle: Available dependency upgrades
+  #   disabledRepoNameMatch: ""
   #   webhook:
   #     path: /gitlab-com
   #     secret: <my secret for hmac>
