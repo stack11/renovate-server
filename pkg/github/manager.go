@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 
 	"arhat.dev/pkg/log"
 	"github.com/google/go-github/v32/github"
@@ -21,6 +22,18 @@ func NewManager(
 	config *conf.PlatformConfig,
 	scheduler types.Scheduler,
 ) (types.PlatformManager, error) {
+	var (
+		err error
+
+		disabledRepoNameMatch *regexp.Regexp
+	)
+	if config.DisabledRepoNameMatch != "" {
+		disabledRepoNameMatch, err = regexp.Compile(config.DisabledRepoNameMatch)
+		if err != nil {
+			return nil, fmt.Errorf("failed to compile disabled repo match: %w", err)
+		}
+	}
+
 	client, err := config.API.Client.NewClient()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http client")
@@ -73,6 +86,7 @@ func NewManager(
 		client:    ghClient,
 		scheduler: scheduler,
 
+		disabledRepoNameMatch: disabledRepoNameMatch,
 		defaultDashboardTitle: config.DashboardIssueTitle,
 		dashboardTitles:       dashboardTitles,
 		disabledRepos:         disabledRepos,
@@ -93,6 +107,7 @@ type Manager struct {
 	client    *github.Client
 	scheduler types.Scheduler
 
+	disabledRepoNameMatch *regexp.Regexp
 	defaultDashboardTitle string
 	dashboardTitles       map[string]string
 	disabledRepos         map[string]struct{}
@@ -128,6 +143,12 @@ func (m *Manager) ListRepos() ([]string, error) {
 	var ret []string
 	for _, repo := range repos {
 		name := repo.GetFullName()
+		if m.disabledRepoNameMatch != nil {
+			if m.disabledRepoNameMatch.Match([]byte(name)) {
+				continue
+			}
+		}
+
 		if _, disabled := m.disabledRepos[name]; disabled {
 			continue
 		}

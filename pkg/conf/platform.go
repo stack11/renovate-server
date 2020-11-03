@@ -102,7 +102,8 @@ type PlatformConfig struct {
 	Git     GitConfig     `json:"git" yaml:"git"`
 	Webhook WebhookConfig `json:"webhook" yaml:"webhook"`
 
-	DashboardIssueTitle string `json:"dashboardIssueTitle" yaml:"dashboardIssueTitle"`
+	DashboardIssueTitle   string `json:"dashboardIssueTitle" yaml:"dashboardIssueTitle"`
+	DisabledRepoNameMatch string `json:"disabledRepoNameMatch" yaml:"disabledRepoNameMatch"`
 
 	Projects []ProjectConfig `json:"projects" yaml:"projects"`
 }
