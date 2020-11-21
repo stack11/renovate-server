@@ -19,8 +19,9 @@ package conf
 import (
 	"time"
 
-	"arhat.dev/pkg/confhelper"
+	"arhat.dev/pkg/kubehelper"
 	"arhat.dev/pkg/log"
+	"arhat.dev/pkg/tlshelper"
 	"github.com/spf13/pflag"
 
 	"arhat.dev/renovate-server/pkg/constant"
@@ -37,8 +38,8 @@ type ServerConfig struct {
 	Log log.ConfigSet `json:"log" yaml:"log"`
 
 	Webhook struct {
-		Listen string               `json:"listen" yaml:"listen"`
-		TLS    confhelper.TLSConfig `json:"tls" yaml:"tls"`
+		Listen string              `json:"listen" yaml:"listen"`
+		TLS    tlshelper.TLSConfig `json:"tls" yaml:"tls"`
 	} `json:"webhook" yaml:"webhook"`
 
 	Scheduling struct {
@@ -57,7 +58,7 @@ type ServerConfig struct {
 }
 
 type KubernetesExecutorConfig struct {
-	KubeClient confhelper.KubeClientConfig `json:"kubeClient" yaml:"kubeClient"`
+	KubeClient kubehelper.KubeClientConfig `json:"kubeClient" yaml:"kubeClient"`
 
 	// JobTTL delete after specified time period
 	JobTTL time.Duration `json:"jobTTL" yaml:"jobTTL"`
@@ -72,7 +73,7 @@ func FlagsForServer(prefix string, config *ServerConfig) *pflag.FlagSet {
 	fs.StringVar(&config.Webhook.Listen, prefix+"webhook.listen",
 		constant.DefaultWebhookListenAddress, "set webhook listener address",
 	)
-	fs.AddFlagSet(confhelper.FlagsForTLSConfig(prefix+"webhook.tls", &config.Webhook.TLS))
+	fs.AddFlagSet(tlshelper.FlagsForTLSConfig(prefix+"webhook.tls", &config.Webhook.TLS))
 	fs.DurationVar(&config.Scheduling.Delay, prefix+"scheduling.delay",
 		constant.DefaultSchedulingDelay, "set delay time before actually invoke executor",
 	)

@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"arhat.dev/pkg/confhelper"
+	"arhat.dev/pkg/tlshelper"
 	"golang.org/x/net/http/httpproxy"
 )
 
@@ -19,8 +19,8 @@ type HTTPProxyConfig struct {
 }
 
 type HTTPClientConfig struct {
-	Proxy *HTTPProxyConfig     `json:"proxy" yaml:"proxy"`
-	TLS   confhelper.TLSConfig `json:"tls" yaml:"tls"`
+	Proxy *HTTPProxyConfig    `json:"proxy" yaml:"proxy"`
+	TLS   tlshelper.TLSConfig `json:"tls" yaml:"tls"`
 }
 
 func (c *HTTPClientConfig) NewClient() (*http.Client, error) {

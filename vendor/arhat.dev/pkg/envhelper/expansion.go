@@ -1,6 +1,22 @@
+/*
+Copyright 2020 The arhat.dev Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+	http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package envhelper
 
-// Expand replaces ${var} or $var in the string based on the mapping function.
+// Expand replaces ${var}, $(var) or $var in the string based on the mapping function.
 func Expand(s string, mapping func(varName, origin string) string) string {
 	var buf []byte
 	// ${} is all ASCII, so bytes are fine for this operation.
@@ -53,6 +69,20 @@ func isAlphaNum(c uint8) bool {
 // expansion and two more bytes are needed than the length of the name.
 func getShellName(s string) (string, int) {
 	switch {
+	case s[0] == '(':
+		if len(s) > 2 && isShellSpecialVar(s[1]) && s[2] == ')' {
+			return s[1:2], 3
+		}
+		// Scan to closing brace
+		for i := 1; i < len(s); i++ {
+			if s[i] == ')' {
+				if i == 1 {
+					return "", 2 // Bad syntax; eat "$()"
+				}
+				return s[1:i], i + 1
+			}
+		}
+		return "", 1 // Bad syntax; eat "$("
 	case s[0] == '{':
 		if len(s) > 2 && isShellSpecialVar(s[1]) && s[2] == '}' {
 			return s[1:2], 3
