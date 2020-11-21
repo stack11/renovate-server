@@ -35,6 +35,7 @@ replace (
 	github.com/prometheus/client_golang => github.com/prometheus/client_golang v1.8.0
 	github.com/prometheus/client_model => github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common => github.com/prometheus/common v0.15.0
+	github.com/prometheus/procfs => github.com/prometheus/procfs v0.2.1-0.20201102103729-910e68572b35
 )
 
 require (
