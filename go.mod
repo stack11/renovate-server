@@ -31,6 +31,12 @@ replace (
 	vbom.ml/util => github.com/fvbommel/util v0.0.2
 )
 
+replace (
+	github.com/prometheus/client_golang => github.com/prometheus/client_golang v1.8.0
+	github.com/prometheus/client_model => github.com/prometheus/client_model v0.2.0
+	github.com/prometheus/common => github.com/prometheus/common v0.15.0
+)
+
 require (
 	arhat.dev/pkg v0.4.4
 	github.com/google/go-github/v32 v32.1.0

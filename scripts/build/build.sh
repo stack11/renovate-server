@@ -31,8 +31,9 @@ _build() {
 }
 
 renovate_server() {
-  # TODO: set mandatory tags and predefined tags for specific platforms
-  _build "CGO_ENABLED=0 ${GOBUILD} -tags='netgo ${PREDEFINED_BUILD_TAGS} ${TAGS}' ./cmd/renovate-server"
+  _build "CGO_ENABLED=0 ${GOBUILD} \
+    -tags='netgo ${PREDEFINED_BUILD_TAGS} ${TAGS}' \
+    ./cmd/renovate-server"
 }
 
 COMP=$(printf "%s" "$@" | cut -d. -f1)
