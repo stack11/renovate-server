@@ -22,12 +22,13 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"arhat.dev/pkg/envhelper"
 	"arhat.dev/pkg/log"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"arhat.dev/renovate-server/pkg/constant"
 )
@@ -58,7 +59,8 @@ func ReadConfig(
 			}
 		})
 
-		if err = yaml.UnmarshalStrict([]byte(configStr), config); err != nil {
+		dec := yaml.NewDecoder(strings.NewReader(configStr))
+		if err = dec.Decode(config); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal config file %s: %v", *configFile, err)
 		}
 	}
