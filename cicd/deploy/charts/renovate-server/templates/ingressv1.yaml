@@ -26,11 +26,13 @@ spec:
       http:
         paths:
           {{- range .paths }}
-          - path: {{ . }}
+          - pathType: Prefix
+            path: {{ . }}
             backend:
               service:
                 name: {{ include "renovate-server.fullname" $ }}
-                port: {{ $.Values.service.port }}
+                port:
+                  number: {{ $.Values.service.port }}
           {{- end }}
     {{- end }}
 {{- end }}
