@@ -52,7 +52,6 @@ jobs:
         make -j$(nproc --all) renovate-server.netbsd.all TAGS=''
         make -j$(nproc --all) renovate-server.openbsd.all TAGS=''
         make -j$(nproc --all) renovate-server.solaris.amd64 TAGS=''
-        make -j$(nproc --all) renovate-server.aix.ppc64 TAGS=''
         make -j$(nproc --all) renovate-server.dragonfly.amd64 TAGS=''
 
     # - name: Package
@@ -61,7 +60,7 @@ jobs:
 
     - name: Hash
       run: |
-        os_list="linux freebsd netbsd openbsd aix solaris dragonfly"
+        os_list="linux freebsd netbsd openbsd solaris dragonfly"
 
         cd build
         for os in ${os_list}; do
@@ -239,7 +238,7 @@ jobs:
     - name: Create Checksum Files
       run: |
         files="sha256 sha512 md5"
-        os_list="darwin windows freebsd netbsd openbsd aix solaris dragonfly"
+        os_list="darwin windows freebsd netbsd openbsd solaris dragonfly"
 
         for f in ${files}; do
           printf "# Linux builds\n\n" > "build/${f}.txt"
@@ -721,15 +720,15 @@ jobs:
         asset_path: build/renovate-server.solaris.amd64
         asset_content_type: application/octet-stream
 
-    - name: Upload renovate-server.aix.ppc64
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_name: renovate-server.aix.ppc64
-        asset_path: build/renovate-server.aix.ppc64
-        asset_content_type: application/octet-stream
+    # - name: Upload renovate-server.aix.ppc64
+    #   uses: actions/upload-release-asset@v1
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   with:
+    #     upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #     asset_name: renovate-server.aix.ppc64
+    #     asset_path: build/renovate-server.aix.ppc64
+    #     asset_content_type: application/octet-stream
 
     #
     # packages
