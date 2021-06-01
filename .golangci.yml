@@ -15,7 +15,7 @@ output:
 linters:
   disable-all: true
   enable:
-  - golint
+  - revive
   - errcheck
   - misspell
   - deadcode
@@ -26,11 +26,10 @@ linters:
   - varcheck
   - unconvert
   - bodyclose
-  - scopelint
+  - exportloopref
   - goimports
   - ineffassign
   - gofmt
-  - maligned
   - goconst
   - gocyclo
   - unparam
@@ -41,8 +40,33 @@ linters:
 linters-settings:
   govet:
     check-shadowing: true
-  golint:
-    min-confidence: 0
+    enable:
+    - atomicalign
+    - assign
+    - atomic
+    - bools
+    - buildtag
+    - cgocall
+    - composites
+    - copylocks
+    - errorsas
+    - framepointer
+    - httpresponse
+    - ifaceassert
+    - loopclosure
+    - lostcancel
+    - nilfunc
+    - printf
+    - shift
+    - stdmethods
+    - stringintconv
+    - structtag
+    - testinggoroutine
+    - unmarshal
+    - tests
+    - unreachable
+    - unsafeptr
+    - unusedresult
   misspell:
     locale: US
   unused:
@@ -55,8 +79,6 @@ linters-settings:
     line-length: 120
     # tab width in spaces. Default to 1.
     tab-width: 4
-  maligned:
-    suggest-new: true
 
 issues:
   exclude-rules:
@@ -69,6 +91,7 @@ issues:
     - maligned
     - lll
     - scopelint
+
   - text: "commentFormatting: put a space between `//` and comment text"
     linters:
     - gocritic

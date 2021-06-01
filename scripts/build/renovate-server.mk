@@ -94,12 +94,12 @@ renovate-server.linux.all: \
 renovate-server.darwin.amd64:
 	sh scripts/build/build.sh $@
 
-# # currently darwin/arm64 build will fail due to golang link error
-# renovate-server.darwin.arm64:
-# 	sh scripts/build/build.sh $@
+renovate-server.darwin.arm64:
+	sh scripts/build/build.sh $@
 
 renovate-server.darwin.all: \
-	renovate-server.darwin.amd64
+	renovate-server.darwin.amd64 \
+	renovate-server.darwin.arm64
 
 renovate-server.windows.x86:
 	sh scripts/build/build.sh $@

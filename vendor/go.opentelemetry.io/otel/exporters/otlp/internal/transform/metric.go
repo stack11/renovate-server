@@ -24,11 +24,11 @@ import (
 	"sync"
 	"time"
 
-	commonpb "go.opentelemetry.io/otel/exporters/otlp/internal/opentelemetry-proto-gen/common/v1"
-	metricpb "go.opentelemetry.io/otel/exporters/otlp/internal/opentelemetry-proto-gen/metrics/v1"
-	resourcepb "go.opentelemetry.io/otel/exporters/otlp/internal/opentelemetry-proto-gen/resource/v1"
+	"go.opentelemetry.io/otel/attribute"
+	commonpb "go.opentelemetry.io/proto/otlp/common/v1"
+	metricpb "go.opentelemetry.io/proto/otlp/metrics/v1"
+	resourcepb "go.opentelemetry.io/proto/otlp/resource/v1"
 
-	"go.opentelemetry.io/otel/label"
 	"go.opentelemetry.io/otel/metric/number"
 	export "go.opentelemetry.io/otel/sdk/export/metric"
 	"go.opentelemetry.io/otel/sdk/export/metric/aggregation"
@@ -170,7 +170,7 @@ func sink(ctx context.Context, in <-chan result) ([]*metricpb.ResourceMetrics, e
 	}
 
 	// group by unique Resource string.
-	grouped := make(map[label.Distinct]resourceBatch)
+	grouped := make(map[attribute.Distinct]resourceBatch)
 	for res := range in {
 		if res.Err != nil {
 			errStrings = append(errStrings, res.Err.Error())
@@ -306,23 +306,26 @@ func Record(exportSelector export.ExportKindSelector, r export.Record) (*metricp
 	}
 }
 
-func gaugeArray(record export.Record, points []number.Number) (*metricpb.Metric, error) {
+func gaugeArray(record export.Record, points []aggregation.Point) (*metricpb.Metric, error) {
 	desc := record.Descriptor()
+	labels := record.Labels()
 	m := &metricpb.Metric{
 		Name:        desc.Name(),
 		Description: desc.Description(),
 		Unit:        string(desc.Unit()),
 	}
 
-	switch n := desc.NumberKind(); n {
+	pbLabels := stringKeyValues(labels.Iter())
+
+	switch nk := desc.NumberKind(); nk {
 	case number.Int64Kind:
 		var pts []*metricpb.IntDataPoint
-		for _, p := range points {
+		for _, s := range points {
 			pts = append(pts, &metricpb.IntDataPoint{
-				Labels:            nil,
+				Labels:            pbLabels,
 				StartTimeUnixNano: toNanos(record.StartTime()),
 				TimeUnixNano:      toNanos(record.EndTime()),
-				Value:             p.CoerceToInt64(n),
+				Value:             s.Number.CoerceToInt64(nk),
 			})
 		}
 		m.Data = &metricpb.Metric_IntGauge{
@@ -333,12 +336,12 @@ func gaugeArray(record export.Record, points []number.Number) (*metricpb.Metric,
 
 	case number.Float64Kind:
 		var pts []*metricpb.DoubleDataPoint
-		for _, p := range points {
+		for _, s := range points {
 			pts = append(pts, &metricpb.DoubleDataPoint{
-				Labels:            nil,
+				Labels:            pbLabels,
 				StartTimeUnixNano: toNanos(record.StartTime()),
 				TimeUnixNano:      toNanos(record.EndTime()),
-				Value:             p.CoerceToFloat64(n),
+				Value:             s.Number.CoerceToFloat64(nk),
 			})
 		}
 		m.Data = &metricpb.Metric_DoubleGauge{
@@ -348,7 +351,7 @@ func gaugeArray(record export.Record, points []number.Number) (*metricpb.Metric,
 		}
 
 	default:
-		return nil, fmt.Errorf("%w: %v", ErrUnknownValueType, n)
+		return nil, fmt.Errorf("%w: %v", ErrUnknownValueType, nk)
 	}
 
 	return m, nil
@@ -458,7 +461,7 @@ func sumPoint(record export.Record, num number.Number, start, end time.Time, ek 
 
 // minMaxSumCountValue returns the values of the MinMaxSumCount Aggregator
 // as discrete values.
-func minMaxSumCountValues(a aggregation.MinMaxSumCount) (min, max, sum number.Number, count int64, err error) {
+func minMaxSumCountValues(a aggregation.MinMaxSumCount) (min, max, sum number.Number, count uint64, err error) {
 	if min, err = a.Min(); err != nil {
 		return
 	}
@@ -531,7 +534,7 @@ func minMaxSumCount(record export.Record, a aggregation.MinMaxSumCount) (*metric
 	return m, nil
 }
 
-func histogramValues(a aggregation.Histogram) (boundaries []float64, counts []float64, err error) {
+func histogramValues(a aggregation.Histogram) (boundaries []float64, counts []uint64, err error) {
 	var buckets aggregation.Buckets
 	if buckets, err = a.Histogram(); err != nil {
 		return
@@ -563,10 +566,6 @@ func histogramPoint(record export.Record, ek export.ExportKind, a aggregation.Hi
 		return nil, err
 	}
 
-	buckets := make([]uint64, len(counts))
-	for i := 0; i < len(counts); i++ {
-		buckets[i] = uint64(counts[i])
-	}
 	m := &metricpb.Metric{
 		Name:        desc.Name(),
 		Description: desc.Description(),
@@ -584,7 +583,7 @@ func histogramPoint(record export.Record, ek export.ExportKind, a aggregation.Hi
 						StartTimeUnixNano: toNanos(record.StartTime()),
 						TimeUnixNano:      toNanos(record.EndTime()),
 						Count:             uint64(count),
-						BucketCounts:      buckets,
+						BucketCounts:      counts,
 						ExplicitBounds:    boundaries,
 					},
 				},
@@ -601,7 +600,7 @@ func histogramPoint(record export.Record, ek export.ExportKind, a aggregation.Hi
 						StartTimeUnixNano: toNanos(record.StartTime()),
 						TimeUnixNano:      toNanos(record.EndTime()),
 						Count:             uint64(count),
-						BucketCounts:      buckets,
+						BucketCounts:      counts,
 						ExplicitBounds:    boundaries,
 					},
 				},
@@ -615,7 +614,7 @@ func histogramPoint(record export.Record, ek export.ExportKind, a aggregation.Hi
 }
 
 // stringKeyValues transforms a label iterator into an OTLP StringKeyValues.
-func stringKeyValues(iter label.Iterator) []*commonpb.StringKeyValue {
+func stringKeyValues(iter attribute.Iterator) []*commonpb.StringKeyValue {
 	l := iter.Len()
 	if l == 0 {
 		return nil

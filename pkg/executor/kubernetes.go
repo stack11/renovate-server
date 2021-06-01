@@ -2,6 +2,7 @@ package executor
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strings"
@@ -79,7 +80,7 @@ func (k *KubernetesExecutor) Execute(args types.ExecutionArgs) error {
 	oneP := int32(1)
 
 	apiTokenBytes := []byte(args.APIToken)
-	secretName := fmt.Sprintf("renovate-%s", hashhelper.MD5SumHex(apiTokenBytes))
+	secretName := fmt.Sprintf("renovate-%s", hex.EncodeToString(hashhelper.MD5Sum(apiTokenBytes)))
 
 	_, err := k.secretClient.Get(k.ctx, secretName, metav1.GetOptions{})
 	if err != nil {

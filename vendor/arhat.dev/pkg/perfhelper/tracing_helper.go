@@ -29,9 +29,10 @@ import (
 
 	"go.opentelemetry.io/otel"
 	otexporterotlp "go.opentelemetry.io/otel/exporters/otlp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpgrpc"
 	otexporterjaeger "go.opentelemetry.io/otel/exporters/trace/jaeger"
 	otexporterzipkin "go.opentelemetry.io/otel/exporters/trace/zipkin"
-	otsdkresource "go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/resource"
 	otsdktrace "go.opentelemetry.io/otel/sdk/trace"
 	otsemconv "go.opentelemetry.io/otel/semconv"
 	oteltrace "go.opentelemetry.io/otel/trace"
@@ -43,9 +44,14 @@ func (c *TracingConfig) CreateIfEnabled(setGlobal bool, client *http.Client) (ot
 		return nil, nil
 	}
 
-	var (
-		traceProvider oteltrace.TracerProvider
-	)
+	var exporter otsdktrace.SpanExporter
+
+	traceProviderOpts := []otsdktrace.TracerProviderOption{
+		otsdktrace.WithSampler(otsdktrace.TraceIDRatioBased(c.SampleRate)),
+		otsdktrace.WithResource(resource.NewWithAttributes(
+			otsemconv.ServiceNameKey.String(c.ServiceName),
+		)),
+	}
 
 	tlsConfig, err := c.TLS.GetTLSConfig(true)
 	if err != nil {
@@ -54,90 +60,72 @@ func (c *TracingConfig) CreateIfEnabled(setGlobal bool, client *http.Client) (ot
 
 	switch c.Format {
 	case "otlp":
-		opts := []otexporterotlp.ExporterOption{
-			otexporterotlp.WithAddress(c.Endpoint),
+		opts := []otlpgrpc.Option{
+			otlpgrpc.WithEndpoint(c.Endpoint),
 		}
 
 		if tlsConfig != nil {
-			opts = append(opts, otexporterotlp.WithTLSCredentials(credentials.NewTLS(tlsConfig)))
+			opts = append(opts, otlpgrpc.WithTLSCredentials(credentials.NewTLS(tlsConfig)))
 		} else {
-			opts = append(opts, otexporterotlp.WithInsecure())
+			opts = append(opts, otlpgrpc.WithInsecure())
 		}
 
-		exporter, err2 := otexporterotlp.NewExporter(opts...)
-		if err2 != nil {
-			return nil, fmt.Errorf("failed to create otlp exporter: %w", err2)
+		exporter, err = otexporterotlp.NewExporter(context.Background(), otlpgrpc.NewDriver(opts...))
+		if err != nil {
+			return nil, fmt.Errorf("failed to create otlp exporter: %w", err)
 		}
-
-		bsp := otsdktrace.NewBatchSpanProcessor(exporter)
-
-		svcNameRes, err2 := otsdkresource.New(context.TODO(),
-			otsdkresource.WithAttributes(otsemconv.ServiceNameKey.String(c.ServiceName)),
-		)
-		if err2 != nil {
-			return nil, fmt.Errorf("failed to create service name resource: %w", err2)
-		}
-
-		traceProvider = otsdktrace.NewTracerProvider(
-			otsdktrace.WithResource(svcNameRes),
-			otsdktrace.WithConfig(otsdktrace.Config{DefaultSampler: otsdktrace.TraceIDRatioBased(c.SampleRate)}),
-			otsdktrace.WithSyncer(exporter),
-			otsdktrace.WithSpanProcessor(bsp),
-		)
 	case "zipkin":
-		exporter, err2 := otexporterzipkin.NewRawExporter(c.Endpoint, c.ServiceName,
+		exporter, err = otexporterzipkin.NewRawExporter(c.Endpoint,
+			otexporterzipkin.WithSDKOptions(
+				otsdktrace.WithResource(resource.NewWithAttributes(
+					otsemconv.ServiceNameKey.String(c.ServiceName),
+				)),
+			),
 			otexporterzipkin.WithClient(c.newHTTPClient(client, tlsConfig)),
 			otexporterzipkin.WithLogger(nil),
-		)
-		if err2 != nil {
-			return nil, fmt.Errorf("failed to create zipkin exporter: %w", err2)
-		}
-
-		traceProvider = otsdktrace.NewTracerProvider(
-			otsdktrace.WithBatcher(exporter,
-				otsdktrace.WithBatchTimeout(5*time.Second),
-			),
-			otsdktrace.WithConfig(otsdktrace.Config{
-				DefaultSampler: otsdktrace.TraceIDRatioBased(c.SampleRate),
-			}),
 		)
 	case "jaeger":
 		var endpoint otexporterjaeger.EndpointOption
 		switch c.EndpointType {
 		case "agent":
+			host, port, err2 := net.SplitHostPort(c.Endpoint)
+			if err2 != nil {
+				return nil, fmt.Errorf("invalid jaeger agent endpoint: %w", err2)
+			}
+
 			endpoint = otexporterjaeger.WithAgentEndpoint(
-				c.Endpoint,
+				otexporterjaeger.WithAgentHost(host),
+				otexporterjaeger.WithAgentPort(port),
 				otexporterjaeger.WithAttemptReconnectingInterval(5*time.Second),
 			)
 		case "collector":
+			// use environ OTEL_EXPORTER_JAEGER_USER
+			// and OTEL_EXPORTER_JAEGER_PASSWORD
 			endpoint = otexporterjaeger.WithCollectorEndpoint(
-				c.Endpoint,
-				// use environ JAEGER_USERNAME and JAEGER_PASSWORD
-				otexporterjaeger.WithCollectorEndpointOptionFromEnv(),
+				otexporterjaeger.WithEndpoint(c.Endpoint),
 				otexporterjaeger.WithHTTPClient(c.newHTTPClient(client, tlsConfig)),
 			)
 		default:
 			return nil, fmt.Errorf("unsupported tracing endpoint type %q", c.EndpointType)
 		}
 
-		var flush func()
-		traceProvider, flush, err = otexporterjaeger.NewExportPipeline(
-			endpoint,
-			otexporterjaeger.WithProcess(otexporterjaeger.Process{
-				ServiceName: c.ServiceName,
-			}),
-			otexporterjaeger.WithSDK(&otsdktrace.Config{
-				DefaultSampler: otsdktrace.TraceIDRatioBased(c.SampleRate),
-			}),
-		)
-		_ = flush
+		exporter, err = otexporterjaeger.NewRawExporter(endpoint)
 	default:
 		return nil, fmt.Errorf("unsupported tracing format %q", c.Format)
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("failed to create %q tracing provider: %w", c.Format, err)
+		return nil, fmt.Errorf("failed to create %q exporter: %w", c.Format, err)
 	}
+
+	traceProviderOpts = append(traceProviderOpts,
+		otsdktrace.WithBatcher(
+			exporter,
+			otsdktrace.WithBatchTimeout(5*time.Second),
+		),
+	)
+
+	traceProvider := otsdktrace.NewTracerProvider(traceProviderOpts...)
 
 	if setGlobal {
 		otel.SetTracerProvider(traceProvider)

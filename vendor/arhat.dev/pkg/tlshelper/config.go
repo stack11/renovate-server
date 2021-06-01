@@ -24,6 +24,7 @@ type TLSPreSharedKeyConfig struct {
 	IdentityHint string `json:"identityHint" yaml:"identityHint"`
 }
 
+// TLSConfig for common tls settings, support both client and server tls
 // nolint:maligned
 type TLSConfig struct {
 	Enabled bool `json:"enabled" yaml:"enabled"`

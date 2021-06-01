@@ -18,6 +18,7 @@ package constant
 
 import "time"
 
+// nolint:revive
 const (
 	DefaultRenovateServerConfigFile = "/etc/renovate-server/config.yaml"
 	DefaultWebhookListenAddress     = ":8080"

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"arhat.dev/pkg/log"
-	"github.com/google/go-github/v32/github"
+	"github.com/google/go-github/v35/github"
 
 	"arhat.dev/renovate-server/pkg/util"
 )

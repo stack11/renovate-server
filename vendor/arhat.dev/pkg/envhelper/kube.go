@@ -22,6 +22,7 @@ import (
 	"os"
 )
 
+// Kubernetes pod identification
 const (
 	EnvKeyPodName      = "POD_NAME"
 	EnvKeyPodNamespace = "POD_NAMESPACE"
