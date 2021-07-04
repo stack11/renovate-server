@@ -354,7 +354,7 @@ func (q *TimeoutQueue) Find(key interface{}) (interface{}, bool) {
 
 	idx, ok := q.index[key]
 	if ok {
-		return q.data[idx], true
+		return q.data[idx].Data, true
 	}
 
 	return nil, false

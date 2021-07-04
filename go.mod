@@ -3,15 +3,15 @@ module arhat.dev/renovate-server
 go 1.16
 
 require (
-	arhat.dev/pkg v0.5.6
-	github.com/google/go-github/v35 v35.2.0
+	arhat.dev/pkg v0.5.8
+	github.com/google/go-github/v35 v35.3.0
 	github.com/robfig/cron/v3 v3.0.1
-	github.com/spf13/cobra v1.1.3
+	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
-	github.com/xanzy/go-gitlab v0.50.0
-	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
-	golang.org/x/oauth2 v0.0.0-20210514164344-f6687ab2804c
+	github.com/xanzy/go-gitlab v0.50.1
+	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
+	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	k8s.io/api v0.20.7
 	k8s.io/apimachinery v0.20.7
