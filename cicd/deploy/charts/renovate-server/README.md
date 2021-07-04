@@ -25,4 +25,4 @@ helm delete my-release
 
 ## Configuration
 
-Please refer to the [`values.yaml`](https://github.com/arhat-dev/renovate-server/blob/v0.1.3/cicd/deploy/charts/renovate-server/values.yaml)
+Please refer to the [`values.yaml`](https://github.com/arhat-dev/renovate-server/blob/v0.1.6/cicd/deploy/charts/renovate-server/values.yaml)
