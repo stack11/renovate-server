@@ -1,0 +1,23 @@
+tools:
+  github:
+  - name: local
+
+github:release:
+- &std_release
+  name: renovate-server
+  hooks:
+    before:
+    - shell: |-
+        cd build
+        openssl dgst -sha256 renovate-server.* > sha256.txt
+        openssl dgst -sha512 renovate-server.* > sha512.txt
+        openssl dgst -md5 renovate-server.* > md5.txt
+  draft: true
+  tag: ${GIT_TAG}
+  pre_release: false
+  title@env: ${GIT_TAG}
+  notes@template_file: .renovate-server/release-notes.md
+  files:
+  - path: build/renovate-server.*
+  # checksums
+  - path: build/*.txt

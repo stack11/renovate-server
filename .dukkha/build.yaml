@@ -1,0 +1,94 @@
+tools:
+  golang:
+  - name: local
+    env:
+    - GO111MODULE=on
+    - GO_PROXY=direct
+    - GO_SUMDB=off
+    cmd: [go]
+  - name: linux-container
+    cmd@template: |-
+      - |-
+        docker run -it --rm \
+          -v $(pwd):$(pwd) \
+          -w $(pwd) \
+          ghcr.io/arhat-dev/builder-go:debian-{{ .Env.MATRIX_ARCH | trimSuffix "hf" }} \
+          go
+
+golang:build:
+- name: renovate-server
+  path: ./cmd/renovate-server
+  hooks:
+    before:matrix:
+    - shell: echo "${MATRIX_KERNEL}/${MATRIX_ARCH}"
+  cgo:
+    enabled: false
+  matrix:
+    kernel:
+    - windows
+    - linux
+    - freebsd
+    - netbsd
+    - openbsd
+    arch:
+    - x86
+    - arm64
+    - amd64
+    - armv7
+    - armv6
+    - armv5
+    exclude:
+    - kernel:
+      - windows
+      arch: [arm64]
+    include:
+    - kernel:
+      - darwin
+      arch:
+      - arm64
+      - amd64
+    - kernel:
+      - solaris
+      - dragonfly
+      arch: [amd64]
+    - kernel:
+      - linux
+      arch:
+      - mips
+      - mipshf
+      - mipsle
+      - mipslehf
+      - mips64
+      - mips64hf
+      - mips64le
+      - mips64lehf
+      - ppc64
+      - ppc64le
+      - s390x
+      - riscv64
+  tags:
+  - nokube
+  - nocloud
+  - netgo
+  ldflags:
+  - -X arhat.dev/renovate-server/pkg/version.branch="${GIT_BRANCH}"
+  - -X arhat.dev/renovate-server/pkg/version.commit="${GIT_COMMIT}"
+  - -X arhat.dev/renovate-server/pkg/version.tag="${GIT_TAG}"
+  - -X arhat.dev/renovate-server/pkg/version.arch="${MATRIX_ARCH}"
+  - -X arhat.dev/renovate-server/pkg/version.workspaceClean="${GIT_WORKTREE_CLEAN}"
+  - -X arhat.dev/renovate-server/pkg/version.goCompilerPlatform="$(go version | cut -d\  -f4)"
+  outputs@shell: |-
+    suffix=""
+    if [ "${MATRIX_KERNEL}" = "windows" ]; then
+      suffix="${suffix}.exe"
+    fi
+
+    if [ "${MATRIX_KERNEL}" = "${HOST_KERNEL}" ] && [ "${MATRIX_ARCH}" = "${HOST_ARCH}" ]; then
+      echo "- build/renovate-server${suffix}"
+    fi
+
+    echo "- build/renovate-server.${MATRIX_KERNEL}.${MATRIX_ARCH}${suffix}"
+  extra_args:
+  - -buildmode=default
+  - -mod=vendor
+  - -trimpath

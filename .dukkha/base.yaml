@@ -1,0 +1,6 @@
+bootstrap:
+  env:
+  - GIT_DEFAULT_BRANCH=master
+
+shells:
+- name: bash
