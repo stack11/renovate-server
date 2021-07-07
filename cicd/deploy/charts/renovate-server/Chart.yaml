@@ -19,5 +19,5 @@ home: https://github.com/arhat-dev/renovate-server
 sources:
 - https://github.com/arhat-dev/renovate-server
 - https://github.com/arhat-dev/helm-charts
-version: 0.1.6
-appVersion: v0.1.6
+version: 0.1.7
+appVersion: v0.1.7

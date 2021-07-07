@@ -41,5 +41,5 @@ jobs:
       run: |
         cd helm-charts
         git add --all .
-        git commit -m "Update charts from renovate-server"
+        git commit -m "chore: Update charts from renovate-server"
         git push
