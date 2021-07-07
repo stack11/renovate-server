@@ -45,7 +45,7 @@ buildah:push:
   name: renovate-server
   hooks:
     before:
-    - task: buildah:login:ghcr
+    - task: buildah:login(ghcr)
   matrix@template_file: *image_matrix
   image_names: *image_names
 
