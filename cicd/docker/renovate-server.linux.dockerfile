@@ -12,6 +12,10 @@ FROM ghcr.io/arhat-dev/go:${MATRIX_ROOTFS}-${MATRIX_ARCH}
 
 LABEL org.opencontainers.image.source https://github.com/arhat-dev/renovate-server
 
+ARG MATRIX_ROOTFS
+COPY cicd/docker/setup.sh /setup.sh
+RUN sh /setup.sh && rm -f /setup.sh
+
 ARG MATRIX_ARCH
 COPY --from=builder /app/build/renovate-server.linux.${MATRIX_ARCH} /renovate-server
 
