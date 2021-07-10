@@ -6,14 +6,19 @@ tools:
     - GO_PROXY=direct
     - GO_SUMDB=off
     cmd: [go]
-  - name: linux-container
-    cmd@template: |-
-      - |-
-        docker run -it --rm \
-          -v $(pwd):$(pwd) \
-          -w $(pwd) \
-          ghcr.io/arhat-dev/builder-go:debian-{{ .Env.MATRIX_ARCH | trimSuffix "hf" }} \
-          go
+
+  - name: in-docker
+    cmd@template|env:
+    - docker
+    - run
+    - -it
+    - --rm
+    - -v
+    - $(pwd):$(pwd)
+    - -w
+    - $(pwd)
+    - ghcr.io/arhat-dev/builder-go:debian-{{ .Env.MATRIX_ARCH | default .Env.HOST_ARCH | trimSuffix "hf" }}
+    - go
 
 golang:build:
 - name: renovate-server
@@ -70,13 +75,16 @@ golang:build:
   - nokube
   - nocloud
   - netgo
-  ldflags:
-  - -X arhat.dev/renovate-server/pkg/version.branch="${GIT_BRANCH}"
-  - -X arhat.dev/renovate-server/pkg/version.commit="${GIT_COMMIT}"
-  - -X arhat.dev/renovate-server/pkg/version.tag="${GIT_TAG}"
-  - -X arhat.dev/renovate-server/pkg/version.arch="${MATRIX_ARCH}"
-  - -X arhat.dev/renovate-server/pkg/version.workspaceClean="${GIT_WORKTREE_CLEAN}"
-  - -X arhat.dev/renovate-server/pkg/version.goCompilerPlatform="$(go version | cut -d\  -f4)"
+
+  ldflags@env:
+  - -s -w
+  - -X "arhat.dev/renovate-server/pkg/version.branch=${GIT_BRANCH}"
+  - -X "arhat.dev/renovate-server/pkg/version.commit=${GIT_COMMIT}"
+  - -X "arhat.dev/renovate-server/pkg/version.tag=${GIT_TAG}"
+  - -X "arhat.dev/renovate-server/pkg/version.arch=${MATRIX_ARCH}"
+  - -X "arhat.dev/renovate-server/pkg/version.workspaceClean=${GIT_WORKTREE_CLEAN}"
+  - -X "arhat.dev/renovate-server/pkg/version.goCompilerPlatform=$(go version | cut -d\  -f4)"
+
   outputs@shell: |-
     suffix=""
     if [ "${MATRIX_KERNEL}" = "windows" ]; then

@@ -1,38 +1,47 @@
 tools:
   docker:
-  # first tool in this kind will be the default tool
-  - name: local-buildkit
+  - name: local
     env:
     - DOCKER_BUILDKIT=1
 
   buildah:
   - name: local
   - name: in-docker
-    cmd:
-    - |-
-      docker run -it --rm \
-        --workdir $(pwd) \
-        -v $(pwd):$(pwd) \
-        --security-opt label=disable \
-        --security-opt seccomp=unconfined \
-        -v buildah-renovate-server:/var/lib/containers \
-        --device /dev/fuse:rw \
-        quay.io/buildah/stable \
-        buildah
+    cmd@env:
+    - docker
+    - run
+    - -it
+    - --rm
+    - --workdir
+    - $(pwd)
+    - -v
+    - $(pwd):$(pwd)
+    - --security-opt
+    - label=disable
+    - --security-opt
+    - seccomp=unconfined
+    - -v
+    - buildah-renovate-server:/var/lib/containers
+    - --device
+    - /dev/fuse:rw
+    - quay.io/buildah/stable
+    - buildah
 
 buildah:bud:
 - &image_build
   name: renovate-server
-  matrix@template_file: &image_matrix .dukkha/image-matrix.yml
+  matrix@file|template: &image_matrix .dukkha/image-matrix.yml
   image_names: &image_names
   - image: ghcr.io/arhat-dev/renovate-server
     manifest: ghcr.io/arhat-dev/renovate-server
   dockerfile@env: cicd/docker/renovate-server.${MATRIX_KERNEL}.dockerfile
   extra_args@template:
-  - --pull
+  - --pull-always
   - --no-cache
-  - --build-arg="MATRIX_ARCH={{ .Env.MATRIX_ARCH }}"
-  - --build-arg="MATRIX_ROOTFS={{ .Env.MATRIX_ROOTFS | default "alpine" }}"
+  - --build-arg
+  - MATRIX_ARCH={{ .Env.MATRIX_ARCH }}
+  - --build-arg
+  - MATRIX_ROOTFS={{ .Env.MATRIX_ROOTFS | default "alpine" }}
 
 buildah:login:
 - name: ghcr
@@ -46,7 +55,7 @@ buildah:push:
   hooks:
     before:
     - task: buildah:login(ghcr)
-  matrix@template_file: *image_matrix
+  matrix@file|template: *image_matrix
   image_names: *image_names
 
 docker:build:
