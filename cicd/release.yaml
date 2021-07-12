@@ -17,7 +17,7 @@ github:release:
   tag: ${GIT_TAG}
   pre_release: false
   title@env: ${GIT_TAG}
-  notes@file|template: .dukkha/release-notes.md
+  notes@file|template: cicd/release-notes.md
   files:
   - path: build/renovate-server.*
   # checksums

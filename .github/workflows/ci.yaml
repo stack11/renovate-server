@@ -114,5 +114,5 @@ jobs:
         GHCR_USER: ${{ github.actor }}
         GHCR_PASS: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        dukkha buildah local bud renovate-server
+        dukkha buildah local build renovate-server
         dukkha buildah local push renovate-server
