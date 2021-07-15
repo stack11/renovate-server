@@ -8,21 +8,14 @@ arch:
 include:
 - kernel:
   - linux
-  rootfs:
-  - alpine
   arch:
   - amd64
   - arm64
   - armv7
   - armv6
-  - x86
+  - armv5
   - s390x
   - ppc64le
-- kernel:
-  - linux
-  rootfs:
-  - debian
-  arch:
-  - armv5
   - mips64le
+  - x86
 {{- end }}
