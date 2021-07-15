@@ -24,6 +24,8 @@ import (
 
 	"arhat.dev/renovate-server/pkg/cmd"
 	"arhat.dev/renovate-server/pkg/version"
+
+	_ "time/tzdata"
 )
 
 func main() {
