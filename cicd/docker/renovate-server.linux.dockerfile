@@ -13,8 +13,9 @@ FROM scratch
 LABEL org.opencontainers.image.source https://github.com/arhat-dev/renovate-server
 
 ARG MATRIX_ARCH
+COPY --from=builder /etc/ssl/certs /etc/ssl/certs
 COPY --from=builder \
-    /app/build/renovate-server.linux.${MATRIX_ARCH} \
+    "/app/build/renovate-server.linux.${MATRIX_ARCH}" \
     /renovate-server
 
 ENTRYPOINT [ "/renovate-server" ]
