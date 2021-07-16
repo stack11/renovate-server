@@ -104,7 +104,9 @@ config:
             qps: 5
             burst: 10
 
-        renovateImage: docker.io/renovate/renovate:latest
+        # official image: docker.io/renovate/renovate:latest
+        # has no arm64 support
+        renovateImage: ghcr.io/arhat-dev/renovate-full:latest
         renovateImagePullPolicy: Always
 
   github: []

@@ -8,7 +8,7 @@ metadata:
     helm.sh/chart: renovate-server-0.1.7
     app.kubernetes.io/name: renovate-server
     app.kubernetes.io/instance: renovate-server
-    app.kubernetes.io/version: "v0.1.7"
+    app.kubernetes.io/version: "v0.1.8"
     app.kubernetes.io/managed-by: Helm
 ---
 # Source: renovate-server/templates/secret.yaml
@@ -20,11 +20,11 @@ metadata:
     helm.sh/chart: renovate-server-0.1.7
     app.kubernetes.io/name: renovate-server
     app.kubernetes.io/instance: renovate-server
-    app.kubernetes.io/version: "v0.1.7"
+    app.kubernetes.io/version: "v0.1.8"
     app.kubernetes.io/managed-by: Helm
 type: Opaque
 data:
-  config.yaml: Z2l0aHViOiBbXQpnaXRsYWI6IFtdCnNlcnZlcjoKICBleGVjdXRvcjoKICAgIGt1YmVybmV0ZXM6CiAgICAgIGpvYlRUTDogNzJoCiAgICAgIGt1YmVDbGllbnQ6CiAgICAgICAgZmFrZTogZmFsc2UKICAgICAgICByYXRlTGltaXQ6CiAgICAgICAgICBidXJzdDogMTAKICAgICAgICAgIGVuYWJsZWQ6IGZhbHNlCiAgICAgICAgICBxcHM6IDUKICAgICAgcmVub3ZhdGVJbWFnZTogZG9ja2VyLmlvL3Jlbm92YXRlL3Jlbm92YXRlOmxhdGVzdAogICAgICByZW5vdmF0ZUltYWdlUHVsbFBvbGljeTogQWx3YXlzCiAgbG9nOgogIC0gZmlsZTogc3RkZXJyCiAgICBmb3JtYXQ6IGNvbnNvbGUKICAgIGxldmVsOiB2ZXJib3NlCiAgc2NoZWR1bGluZzoKICAgIGNyb25UYWJzOgogICAgLSAwICovMSAqICogNgogICAgLSAwICovMSAqICogMAogICAgZGVsYXk6IDFtCiAgICB0aW1lem9uZTogIiIKICB3ZWJob29rOgogICAgbGlzdGVuOiA6ODA4MA==
+  config.yaml: Z2l0aHViOiBbXQpnaXRsYWI6IFtdCnNlcnZlcjoKICBleGVjdXRvcjoKICAgIGt1YmVybmV0ZXM6CiAgICAgIGpvYlRUTDogNzJoCiAgICAgIGt1YmVDbGllbnQ6CiAgICAgICAgZmFrZTogZmFsc2UKICAgICAgICByYXRlTGltaXQ6CiAgICAgICAgICBidXJzdDogMTAKICAgICAgICAgIGVuYWJsZWQ6IGZhbHNlCiAgICAgICAgICBxcHM6IDUKICAgICAgcmVub3ZhdGVJbWFnZTogZ2hjci5pby9hcmhhdC1kZXYvcmVub3ZhdGUtZnVsbDpsYXRlc3QKICAgICAgcmVub3ZhdGVJbWFnZVB1bGxQb2xpY3k6IEFsd2F5cwogIGxvZzoKICAtIGZpbGU6IHN0ZGVycgogICAgZm9ybWF0OiBjb25zb2xlCiAgICBsZXZlbDogdmVyYm9zZQogIHNjaGVkdWxpbmc6CiAgICBjcm9uVGFiczoKICAgIC0gMCAqLzEgKiAqIDYKICAgIC0gMCAqLzEgKiAqIDAKICAgIGRlbGF5OiAxbQogICAgdGltZXpvbmU6ICIiCiAgd2ViaG9vazoKICAgIGxpc3RlbjogOjgwODA=
 ---
 # Source: renovate-server/templates/rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -67,7 +67,7 @@ metadata:
     helm.sh/chart: renovate-server-0.1.7
     app.kubernetes.io/name: renovate-server
     app.kubernetes.io/instance: renovate-server
-    app.kubernetes.io/version: "v0.1.7"
+    app.kubernetes.io/version: "v0.1.8"
     app.kubernetes.io/managed-by: Helm
 spec:
   type: ClusterIP
@@ -89,7 +89,7 @@ metadata:
     helm.sh/chart: renovate-server-0.1.7
     app.kubernetes.io/name: renovate-server
     app.kubernetes.io/instance: renovate-server
-    app.kubernetes.io/version: "v0.1.7"
+    app.kubernetes.io/version: "v0.1.8"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
