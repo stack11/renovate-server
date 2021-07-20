@@ -4,7 +4,7 @@
 [![Build](https://github.com/arhat-dev/renovate-server/workflows/Build/badge.svg)](https://github.com/arhat-dev/renovate-server/actions?query=workflow%3ABuild)
 [![PkgGoDev](https://pkg.go.dev/badge/arhat.dev/renovate-server)](https://pkg.go.dev/arhat.dev/renovate-server)
 [![GoReportCard](https://goreportcard.com/badge/arhat.dev/renovate-server)](https://goreportcard.com/report/arhat.dev/renovate-server)
-[![codecov](https://codecov.io/gh/arhat-dev/renovate-server/branch/master/graph/badge.svg)](https://codecov.io/gh/arhat-dev/renovate-server)
+[![Coverage](https://badge.arhat.dev/sonar/coverage/arhat-dev_renovate-server?branch=master&token=286c37de99f7407456bafcac06bb04ea)](https://sonar.arhat.dev/dashboard?id=arhat-dev_renovate-server)
 
 Self-Hosted renovate server to automate renovate actions
 
