@@ -8,24 +8,31 @@ tools:
     cmd: [go]
 
   - name: in-docker
-    cmd@template|env:
+    cmd@template:
     - docker
     - run
     - -it
     - --rm
+    - -e
+    - GO111MODULE=on
+    - -e
+    - GO_PROXY=direct
+    - -e
+    - GO_SUMDB=off
+    - -e
+    - GOOS={{ .Env.MATRIX_KERNEL | default .Env.HOST_KERNEL }}
+    - -e
+    - GOARCH={{ .Env.MATRIX_ARCH | default .Env.HOST_ARCH | getGolangArch }}
     - -v
-    - $(pwd):$(pwd)
+    - "{{ .Env.DUKKHA_WORKING_DIR }}:{{ .Env.DUKKHA_WORKING_DIR }}"
     - -w
-    - $(pwd)
-    - ghcr.io/arhat-dev/builder-golang:1.16-alpine-{{ .Env.MATRIX_ARCH | default .Env.HOST_ARCH | trimSuffix "hf" }}
+    - "{{ .Env.DUKKHA_WORKING_DIR }}"
+    - ghcr.io/arhat-dev/builder-golang:1.16-alpine
     - go
 
 golang:build:
 - name: renovate-server
   path: ./cmd/renovate-server
-  hooks:
-    before:matrix:
-    - shell: echo "${MATRIX_KERNEL}/${MATRIX_ARCH}"
   cgo:
     enabled: false
   matrix:
@@ -85,17 +92,17 @@ golang:build:
   - -X "arhat.dev/renovate-server/pkg/version.workspaceClean=${GIT_WORKTREE_CLEAN}"
   - -X "arhat.dev/renovate-server/pkg/version.goCompilerPlatform=$(go version | cut -d\  -f4)"
 
-  outputs@shell: |-
-    suffix=""
-    if [ "${MATRIX_KERNEL}" = "windows" ]; then
-      suffix="${suffix}.exe"
-    fi
+  outputs@template: |-
+    {{- $suffix := "" -}}
+    {{- if eq .Env.MATRIX_KERNEL "windows" -}}
+      {{- $suffix = ".exe" -}}
+    {{- end -}}
 
-    if [ "${MATRIX_KERNEL}" = "${HOST_KERNEL}" ] && [ "${MATRIX_ARCH}" = "${HOST_ARCH}" ]; then
-      echo "- build/renovate-server${suffix}"
-    fi
+    {{- if and (eq .Env.MATRIX_KERNEL .Env.HOST_KERNEL) (eq .Env.MATRIX_ARCH .Env.HOST_ARCH) }}
+    - build/renovate-server{{ $suffix }}
+    {{- end }}
+    - build/renovate-server.{{ .Env.MATRIX_KERNEL }}.{{ .Env.MATRIX_ARCH }}{{ $suffix }}
 
-    echo "- build/renovate-server.${MATRIX_KERNEL}.${MATRIX_ARCH}${suffix}"
   extra_args:
   - -buildmode=default
   - -mod=vendor

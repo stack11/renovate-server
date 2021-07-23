@@ -18,4 +18,6 @@ COPY --from=builder \
     "/app/build/renovate-server.linux.${MATRIX_ARCH}" \
     /renovate-server
 
+ENV PATH=/
+WORKDIR /
 ENTRYPOINT [ "/renovate-server" ]

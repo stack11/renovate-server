@@ -3,8 +3,7 @@ tools:
   - name: local
 
 github:release:
-- &std_release
-  name: renovate-server
+- name: renovate-server
   hooks:
     before:
     - shell: |-

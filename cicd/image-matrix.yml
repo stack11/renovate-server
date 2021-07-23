@@ -5,17 +5,16 @@ arch:
 - amd64
 - armv7
 {{- else }}
-include:
-- kernel:
-  - linux
-  arch:
-  - amd64
-  - arm64
-  - armv7
-  - armv6
-  - armv5
-  - s390x
-  - ppc64le
-  - mips64le
-  - x86
+kernel:
+- linux
+arch:
+- amd64
+- arm64
+- armv7
+- armv6
+- armv5
+- s390x
+- ppc64le
+- mips64le
+- x86
 {{- end }}
